@@ -6,14 +6,15 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.Naming;
-import java.sql.SQLException;
 import java.util.List;
 
+import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -51,8 +52,8 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 		jTable1 = new JTable(model);
 		rowSorter = new TableRowSorter<DefaultTableModel>(model);
 		jTable1.setRowSorter(rowSorter);
-		jTable1.setFont(new Font("Tahoma", 0, 14));
-		jTable1.getTableHeader().setFont(new Font("Tahoma", 0, 14));
+		jTable1.setFont(new Font("SansSerif", 0, 14));
+		jTable1.getTableHeader().setFont(new Font("SansSerif", 0, 14));
 		jTable1.setGridColor(Color.WHITE);
 
 		jTable1.setDefaultEditor(Object.class, null);
@@ -81,50 +82,50 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 
 		jTable1.addMouseListener(this);
 
-		lblTieuDe.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		lblTieuDe.setFont(new Font("SansSerif", Font.PLAIN, 24));
 		lblTieuDe.setText("Danh Sách Hóa Đơn");
 
-		txtTimKiem.setFont(new Font("Tahoma", 0, 16));
+		txtTimKiem.setFont(new Font("SansSerif", 0, 16));
 
-		lblTimKiem.setFont(new Font("Tahoma", 0, 18));
-		lblTimKiem.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		lblTimKiem.setFont(new Font("SansSerif", 0, 18));
+		lblTimKiem.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTimKiem.setText("Tìm Kiếm Hóa đơn");
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+		GroupLayout layout = new GroupLayout(this);
 		this.setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 								.addGroup(layout.createSequentialGroup()
-										.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1080,
+										.addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 1080,
 												Short.MAX_VALUE)
 										.addContainerGap())
-								.addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
+								.addGroup(GroupLayout.Alignment.TRAILING,
 										layout.createSequentialGroup().addGap(0, 0, Short.MAX_VALUE)
 												.addGap(499, 499, 499))))
 				.addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 								.addGroup(layout.createSequentialGroup()
-										.addComponent(lblTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 210,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 601,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblTimKiem, GroupLayout.PREFERRED_SIZE, 210,
+												GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(txtTimKiem, GroupLayout.PREFERRED_SIZE, 601,
+												GroupLayout.PREFERRED_SIZE)
 										.addGap(172, 172, 172))
 								.addGroup(layout.createSequentialGroup().addGap(425, 425, 425).addComponent(lblTieuDe)))
 						.addGap(0, 0, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-				javax.swing.GroupLayout.Alignment.TRAILING,
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
+				GroupLayout.Alignment.TRAILING,
 				layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-										.addComponent(lblTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 29,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 29,
-												javax.swing.GroupLayout.PREFERRED_SIZE)))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+										.addComponent(lblTimKiem, GroupLayout.PREFERRED_SIZE, 29,
+												GroupLayout.PREFERRED_SIZE)
+										.addComponent(txtTimKiem, GroupLayout.PREFERRED_SIZE, 29,
+												GroupLayout.PREFERRED_SIZE)))
 						.addGap(31, 31, 31).addComponent(lblTieuDe).addGap(18, 18, 18)
-						.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 						.addContainerGap()));
 
 		loadBillsData();

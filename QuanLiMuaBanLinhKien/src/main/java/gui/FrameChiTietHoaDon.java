@@ -4,17 +4,16 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.List;
 
+import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -60,25 +59,25 @@ public class FrameChiTietHoaDon extends JFrame {
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		jLabel1.setFont(new java.awt.Font("Tahoma", 1, 24));
+		jLabel1.setFont(new Font("SansSerif", 1, 24));
 		jLabel1.setText("Chi Tiết Hóa Đơn");
 
 		txtHoTen.setEditable(false);
-		txtHoTen.setFont(new Font("Tahoma", 0, 16));
+		txtHoTen.setFont(new Font("SansSerif", 0, 16));
 
 		jLabel4.setText("Địa chỉ");
-		jLabel4.setFont(new Font("Tahoma", 0, 16));
+		jLabel4.setFont(new Font("SansSerif", 0, 16));
 
 		txtDiaChi.setEditable(false);
-		txtDiaChi.setFont(new Font("Tahoma", 0, 16));
+		txtDiaChi.setFont(new Font("SansSerif", 0, 16));
 
 		tableDonHang = new JTable(model = new DefaultTableModel(
 				new String[] { "Mã linh kiện", "Tên linh kiện", "Loại linh kiện", "Thương hiệu", "Số lượng", "Giá" },
 				0));
 
 		tableDonHang.setDefaultEditor(Object.class, null);
-		tableDonHang.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		tableDonHang.getTableHeader().setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableDonHang.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		tableDonHang.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
 
 		tableDonHang.setGridColor(Color.WHITE);
 		tableDonHang.setFocusable(false);
@@ -99,75 +98,66 @@ public class FrameChiTietHoaDon extends JFrame {
 		jScrollPane2.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
 		jLabel6.setText("Mã khách hàng");
-		jLabel6.setFont(new Font("Tahoma", 0, 16));
+		jLabel6.setFont(new Font("SansSerif", 0, 16));
 
 		txtMaKhachHang.setEditable(false);
-		txtMaKhachHang.setFont(new Font("Tahoma", 0, 16));
+		txtMaKhachHang.setFont(new Font("SansSerif", 0, 16));
 
 		jLabel7.setText("Số điện thoại");
-		jLabel7.setFont(new Font("Tahoma", 0, 16));
+		jLabel7.setFont(new Font("SansSerif", 0, 16));
 
 		txtSDT.setEditable(false);
-		txtSDT.setFont(new Font("Tahoma", 0, 16));
+		txtSDT.setFont(new Font("SansSerif", 0, 16));
 
 		jLabel2.setText("Họ và tên khách hàng");
-		jLabel2.setFont(new Font("Tahoma", 0, 16));
+		jLabel2.setFont(new Font("SansSerif", 0, 16));
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout
-						.createSequentialGroup().addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(jLabel1).addGap(226, 226, 226))
-				.addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
-				.addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-										.addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, 260,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addComponent(jLabel4).addComponent(jLabel6))
-								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-										.addGroup(layout.createSequentialGroup()
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-														105, Short.MAX_VALUE)
-												.addGroup(layout
-														.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-														.addComponent(txtSDT, javax.swing.GroupLayout.PREFERRED_SIZE,
-																260, javax.swing.GroupLayout.PREFERRED_SIZE)
-														.addComponent(jLabel7)))
-										.addGroup(layout.createSequentialGroup().addGap(105, 105, 105)
-												.addComponent(jLabel2).addGap(0, 0, Short.MAX_VALUE))))
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(txtMaKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 260,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(txtHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, 260,
-										javax.swing.GroupLayout.PREFERRED_SIZE)))
-						.addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addComponent(jScrollPane2, GroupLayout.Alignment.TRAILING)
+				.addGroup(layout.createSequentialGroup().addContainerGap()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+										.addComponent(txtDiaChi, GroupLayout.DEFAULT_SIZE, 370,
+												Short.MAX_VALUE)
+										.addComponent(txtMaKhachHang))
+								.addComponent(jLabel4).addComponent(jLabel6))
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
+								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(txtHoTen, GroupLayout.Alignment.TRAILING,
+												GroupLayout.PREFERRED_SIZE, 370,
+												GroupLayout.PREFERRED_SIZE)
+										.addComponent(txtSDT, GroupLayout.PREFERRED_SIZE, 370,
+												GroupLayout.PREFERRED_SIZE))
+								.addComponent(jLabel2).addComponent(jLabel7))
+						.addContainerGap())
+				.addGroup(layout.createSequentialGroup().addGap(354, 354, 354).addComponent(jLabel1)
+						.addContainerGap(355, Short.MAX_VALUE)));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup().addContainerGap().addComponent(jLabel1).addGap(29, 29, 29)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 								.addComponent(jLabel2).addComponent(jLabel6))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(txtMaKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(txtHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+								.addComponent(txtMaKhachHang, GroupLayout.PREFERRED_SIZE, 30,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(txtHoTen, GroupLayout.PREFERRED_SIZE, 30,
+										GroupLayout.PREFERRED_SIZE))
 						.addGap(20, 20, 20)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 								.addComponent(jLabel7).addComponent(jLabel4))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(txtSDT, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-						.addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 308,
-								javax.swing.GroupLayout.PREFERRED_SIZE)));
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+								.addComponent(txtSDT, GroupLayout.PREFERRED_SIZE, 30,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE, 30,
+										GroupLayout.PREFERRED_SIZE))
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+						.addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, 308,
+								GroupLayout.PREFERRED_SIZE)));
 
 		setResizable(false);
 

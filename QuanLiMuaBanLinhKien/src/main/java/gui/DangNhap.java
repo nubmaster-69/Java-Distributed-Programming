@@ -9,17 +9,22 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 
 import entity.NhanVien;
 import facade.IEmployeeFacade;
 
-public class DangNhap extends javax.swing.JFrame implements ActionListener {
+public class DangNhap extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,11 +35,9 @@ public class DangNhap extends javax.swing.JFrame implements ActionListener {
 	private JLabel jLabel3;
 	private JPasswordField txtMatKhau;
 	private JTextField txtTenDangNhap;
-	IEmployeeFacade employeeFacade;
+	private IEmployeeFacade employeeFacade;
 
 	public DangNhap() {
-		initComponents();
-
 		try {
 			employeeFacade = (IEmployeeFacade) Naming.lookup("rmi://localhost:1341/employeeFacade");
 		} catch (MalformedURLException e) {
@@ -44,6 +47,8 @@ public class DangNhap extends javax.swing.JFrame implements ActionListener {
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
+		
+		initComponents();
 	}
 
 	private void initComponents() {
@@ -52,77 +57,71 @@ public class DangNhap extends javax.swing.JFrame implements ActionListener {
 		jLabel2 = new JLabel();
 
 		txtTenDangNhap = new JTextField();
-		txtTenDangNhap.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtTenDangNhap.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		jLabel3 = new JLabel();
 
 		txtMatKhau = new JPasswordField();
 		txtMatKhau.setEchoChar('•');
-		txtMatKhau.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtMatKhau.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		btnDangNhap = new JButton();
-		btnDangNhap.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnDangNhap.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		btnDangNhap.setFocusable(false);
 		btnDangNhap.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
 		jButton2 = new JButton();
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Ứng dụng mua bán linh kiện");
 		setResizable(false);
 
-		jLabel1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		jLabel1.setFont(new Font("SansSerif", Font.PLAIN, 22));
 		jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-		jLabel1.setText("Đăng Nhập");
+		jLabel1.setText("Chào Mừng Bạn Đã Quay Trở Lại");
 
-		jLabel2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		jLabel2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		jLabel2.setText("Tên đăng nhập: ");
 
-		jLabel3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		jLabel3.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		jLabel3.setText("Mật khẩu: ");
 
 		btnDangNhap.setText("Đăng nhập");
 
 		btnDangNhap.addActionListener(this);
-		jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Logo_IUH.png"))); // NOI18N
+		jButton2.setIcon(new ImageIcon(getClass().getResource("/img/Logo_IUH.png")));
 		jButton2.setBorderPainted(false);
 		jButton2.setContentAreaFilled(false);
 		jButton2.setFocusable(false);
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout
-				.createSequentialGroup().addGap(38, 38, 38)
-				.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(layout.createSequentialGroup().addGap(0, 0, Short.MAX_VALUE).addComponent(jButton2))
-						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-										.addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING,
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
-										.addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
-										.addComponent(txtTenDangNhap, javax.swing.GroupLayout.Alignment.LEADING,
-												javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-										.addComponent(txtMatKhau, javax.swing.GroupLayout.Alignment.LEADING))
-								.addGap(0, 38, Short.MAX_VALUE))))
-				.addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-						layout.createSequentialGroup()
-								.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(btnDangNhap).addGap(145, 145, 145)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addComponent(jButton2).addGap(25, 25, 25)
-						.addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 39,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(20, 20, 20).addComponent(jLabel2)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(txtTenDangNhap, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(18, 18, 18).addComponent(jLabel3)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(txtMatKhau, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(32, 32, 32).addComponent(btnDangNhap).addContainerGap(33, Short.MAX_VALUE)));
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup().addGap(60, 60, 60)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+								.addComponent(jLabel1, GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+								.addComponent(jLabel3).addComponent(jLabel2).addComponent(txtMatKhau)
+								.addComponent(txtTenDangNhap))
+						.addContainerGap(60, Short.MAX_VALUE))
+				.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addComponent(jButton2, GroupLayout.Alignment.TRAILING)
+								.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+										.addComponent(btnDangNhap).addGap(184, 184, 184)))));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup().addComponent(jButton2).addGap(74, 74, 74)
+						.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 39,
+								GroupLayout.PREFERRED_SIZE)
+						.addGap(30, 30, 30).addComponent(jLabel2)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(txtTenDangNhap, GroupLayout.PREFERRED_SIZE, 40,
+								GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+						.addComponent(jLabel3).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(txtMatKhau, GroupLayout.PREFERRED_SIZE, 40,
+								GroupLayout.PREFERRED_SIZE)
+						.addGap(50, 50, 50).addComponent(btnDangNhap).addGap(44, 44, 44)));
 
 		pack();
 
@@ -143,7 +142,7 @@ public class DangNhap extends javax.swing.JFrame implements ActionListener {
 					new AdminFrame(nv).setVisible(true);
 				else
 					new EmployeeFrame(nv).setVisible(true);
-				
+
 				this.dispose();
 			} catch (RemoteException e) {
 				e.printStackTrace();
