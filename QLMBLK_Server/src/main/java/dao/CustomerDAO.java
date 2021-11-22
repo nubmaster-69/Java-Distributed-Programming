@@ -5,6 +5,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -83,7 +85,6 @@ public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade 
 			trans.rollback();
 			e.printStackTrace();
 		}
-
 		return cusID;
 	}
 
@@ -93,16 +94,18 @@ public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade 
 
 		Session session = sessionFactory.getCurrentSession();
 		Transaction trans = session.getTransaction();
-
+		
 		try {
 			trans.begin();
-
-			kh = session.createQuery("from KhachHang where soDienThoaiKH = :phoneNumber", KhachHang.class)
-					.setParameter("phoneNumber", soDT).getSingleResult();
-
+			try {
+				kh = session.createQuery("from KhachHang where soDienThoaiKH = :phoneNumber", KhachHang.class)
+						.setParameter("phoneNumber", soDT).getSingleResult();
+			} catch (NoResultException  e) {
+				trans.rollback();
+				return null;
+			}
 			trans.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
 			trans.rollback();
 		}
 
@@ -176,4 +179,5 @@ public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade 
 
 		return false;
 	}
+	
 }

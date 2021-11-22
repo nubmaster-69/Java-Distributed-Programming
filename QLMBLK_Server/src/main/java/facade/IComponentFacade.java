@@ -20,4 +20,6 @@ public interface IComponentFacade extends Remote {
 	boolean removeComponentByID(String maLK) throws RemoteException;
 
 	boolean updateComponentByID(LinhKien lk) throws RemoteException;
+	
+	String getLastLK() throws RemoteException;
 }

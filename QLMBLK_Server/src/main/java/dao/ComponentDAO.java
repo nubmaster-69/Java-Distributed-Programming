@@ -171,4 +171,34 @@ public class ComponentDAO extends UnicastRemoteObject implements IComponentFacad
 
 		return false;
 	}
+
+	@Override
+	public String getLastLK() throws RemoteException {
+		Session session = sessionFactory.getCurrentSession();
+        Transaction tr = session.getTransaction();
+        String sql = "select top 1 maLinhKien from LinhKien order by maLinhKien desc";
+        try {
+            tr.begin();
+            String maKhachCuoi="";
+            String maCuoiCung = "LK";
+            try {
+                maKhachCuoi = (String)session.createNativeQuery(sql).uniqueResult();
+                int so = Integer.parseInt(maKhachCuoi.split("LK")[1]) + 1;
+                int soChuSo = String.valueOf(so).length();
+                
+                for (int i = 0; i< 6 - soChuSo; i++){
+                    maCuoiCung += "0";
+                }
+                maCuoiCung += String.valueOf(so);
+            } catch (Exception e) {
+                maCuoiCung = "LK000001";
+            } 
+            tr.commit();
+            return maCuoiCung;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tr.rollback();
+        }
+        return null;
+	}
 }
