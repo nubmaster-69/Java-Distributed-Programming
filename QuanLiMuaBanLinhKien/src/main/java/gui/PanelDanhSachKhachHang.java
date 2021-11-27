@@ -266,25 +266,31 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 	}
 
 	private void btnXoaActionPerformed() {
-		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa ?", "Xác nhận",
-				JOptionPane.YES_NO_CANCEL_OPTION);
-		if (confirm == 0) {
-			while (tableDanhSachKhachHang.getSelectedRowCount() != 0) {
-				int selectedRow = tableDanhSachKhachHang.getSelectedRow();
-				String maKH = tableDanhSachKhachHang.getValueAt(selectedRow, 0).toString();
-				try {
-					if (customerFacade.removeCustomerByID(maKH))
-						model.removeRow(selectedRow);
-				} catch (RemoteException e) {
-					e.printStackTrace();
+		int row = tableDanhSachKhachHang.getSelectedRow();
+		if (row == -1) {
+			JOptionPane.showMessageDialog(null, "Chọn dòng cần xóa");
+			return;
+		} else {
+			int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa ?", "Xác nhận",
+					JOptionPane.YES_NO_CANCEL_OPTION);
+			if (confirm == 0) {
+				while (tableDanhSachKhachHang.getSelectedRowCount() != 0) {
+					int selectedRow = tableDanhSachKhachHang.getSelectedRow();
+					String maKH = tableDanhSachKhachHang.getValueAt(selectedRow, 0).toString();
+					try {
+						if (customerFacade.removeCustomerByID(maKH))
+							model.removeRow(selectedRow);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 				}
 			}
-		}
 
-		txtDiaChi.setText("");
-		txtMaKhachHang.setText("");
-		txtSDT.setText("");
-		txtTenKhachHang.setText("");
+			txtDiaChi.setText("");
+			txtMaKhachHang.setText("");
+			txtSDT.setText("");
+			txtTenKhachHang.setText("");
+		}
 	}
 
 	private void btnChinhSuaActionPerformed() {
@@ -338,7 +344,9 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 			return false;
 		}
 
-		if (!(sdt.matches("^0[0-9]{9}$"))) {
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+		if (!(sdt.matches(pattern))) {
 			JOptionPane.showInternalMessageDialog(this, "Số điện thoại k hợp lệ");
 			txtSDT.requestFocus();
 			txtSDT.selectAll();
@@ -359,20 +367,21 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 			KhachHang kh = null;
 			if (regex()) {
 				kh = getKhachHang();
-			}
-			int t1 = JOptionPane.showConfirmDialog(null, "bạn có muốn sửa ?", "Sửa", JOptionPane.YES_NO_OPTION);
-			if (t1 == JOptionPane.YES_OPTION && kh != null) {
-				boolean isUpdated = false;
-				try {
-					isUpdated = customerFacade.updateCustomerInfo(kh);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
-				if (isUpdated) {
-					JOptionPane.showMessageDialog(this, "Sửa thông tin Khách hàng thành công");
-					loadCustomersData();
+				int t1 = JOptionPane.showConfirmDialog(null, "bạn có muốn sửa ?", "Sửa", JOptionPane.YES_NO_OPTION);
+				if (t1 == JOptionPane.YES_OPTION && kh != null) {
+					boolean isUpdated = false;
+					try {
+						isUpdated = customerFacade.updateCustomerInfo(kh);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					if (isUpdated) {
+						JOptionPane.showMessageDialog(this, "Sửa thông tin Khách hàng thành công");
+						loadCustomersData();
+					}
 				}
 			}
 		}
