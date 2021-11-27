@@ -12,9 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +38,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.MaskFormatter;
 
 import entity.ChiTietHoaDon;
 import entity.HoaDon;
@@ -95,7 +92,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 	private DecimalFormat df;
 	private NhanVien nhanVienLogin;
-	private KhachHang khachHang;
+	private KhachHang khachHang = null;
 
 	private TableRowSorter<DefaultTableModel> rowSorter;
 
@@ -117,11 +114,12 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		nhanVienLogin = nv;
 	}
 
-	private void initComponents(){
+	private void initComponents() {
 		df = new DecimalFormat("#,###");
 		jLabel1 = new JLabel();
 		jScrollPane1 = new JScrollPane();
 		tableHangCoSan = new JTable();
+		tableDonHang = new JTable();
 		btnTaoDon = new JButton();
 		btnLamMoi = new JButton();
 		jLabel2 = new JLabel();
@@ -135,7 +133,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		txtDiaChi.setFont(new Font("Tahoma", 0, 16));
 
 		jScrollPane2 = new JScrollPane();
-		tableDonHang = new JTable();
 		jLabel5 = new JLabel();
 		jLabel7 = new JLabel();
 
@@ -207,12 +204,11 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 		jScrollPane1.setViewportView(tableHangCoSan);
 		if (tableHangCoSan.getColumnModel().getColumnCount() > 0) {
-			tableHangCoSan.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-			tableHangCoSan.getColumnModel().getColumn(4).setPreferredWidth(40);
-			tableHangCoSan.getColumnModel().getColumn(3).setPreferredWidth(40);
-			tableHangCoSan.getColumnModel().getColumn(2).setPreferredWidth(80);
-			tableHangCoSan.getColumnModel().getColumn(1).setPreferredWidth(200);
 			tableHangCoSan.getColumnModel().getColumn(0).setPreferredWidth(50);
+			tableHangCoSan.getColumnModel().getColumn(1).setPreferredWidth(200);
+			tableHangCoSan.getColumnModel().getColumn(2).setPreferredWidth(80);
+			tableHangCoSan.getColumnModel().getColumn(3).setPreferredWidth(40);
+			tableHangCoSan.getColumnModel().getColumn(4).setPreferredWidth(40);
 		}
 
 		jScrollPane1.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
@@ -245,11 +241,20 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 		jLabel7.setText("Số điện thoại");
 		jLabel7.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		
+		modelTaoDonHang = new DefaultTableModel(
+				new String[] { "Mã LK", "Tên Linh Kiện", "Thương Hiệu", "Số Lượng", "Tổng tiền" }, 0);
+		
+		tableDonHang = new JTable(modelTaoDonHang) {
+			private static final long serialVersionUID = 1L;
 
-		tableDonHang = new JTable(modelTaoDonHang = new DefaultTableModel(
-				new String[] { "Mã LK", "Tên Linh Kiện", "Thương Hiệu", "Số Lượng", "Tổng tiền" }, 0));
+			public boolean isCellEditable(int rowIndex, int colIndex) {
+				if (colIndex != 3)
+					return false;
+				return true;
+			}
+		};
 
-//		tableDonHang.setFocusable(false);
 		tableDonHang.setGridColor(Color.WHITE);
 		tableDonHang.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		tableDonHang.getTableHeader().setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -416,36 +421,46 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		txtTienKhachDua.addActionListener(this);
 	}
 
-// Chinh lai cai nay nha
 	private void btnTaoDonActionPerformed() {
+		if (!validateCusData())
+			return;
+
 		if (khachHang == null) {
 			long maKhachHang = 0;
 			try {
 				maKhachHang = Long.parseLong(customerFacade.getLastCustomerID());
 				maKhachHang++;
-				khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(), txtSDT.getText().trim(),
-						txtDiaChi.getText().trim());
+				khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(),
+						txtSDT.getText().trim(), txtDiaChi.getText().trim());
 				customerFacade.addCustomer(khachHang);
 			} catch (NumberFormatException | RemoteException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		String newBillID;
 		HoaDon hoadon = null;
+
+		if (tableDonHang.getRowCount() < 1) {
+			showMsg("Vui lòng chọn sản phẩm cần mua!");
+			return;
+		}
+
+		if (!tinhTienThoi()) {
+			return;
+		}
+
 		try {
 			newBillID = Integer.parseInt(orderFacade.getLastBillID()) + 1 + "";
 			LocalDate ngayLapHoaDon = LocalDate.now();
 			hoadon = new HoaDon(newBillID, nhanVienLogin, khachHang, ngayLapHoaDon);
 			orderFacade.addNewBill(hoadon);
 		} catch (NumberFormatException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		for (int i = 0; i < tableDonHang.getRowCount(); i++) {
 			LinhKien lk = null;
 			try {
@@ -457,7 +472,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				e.printStackTrace();
 			}
 		}
-		JOptionPane.showMessageDialog(this,"Thêm thành công đơn hàng");
+		JOptionPane.showMessageDialog(this, "Thêm thành công đơn hàng");
 
 		clear();
 	}
@@ -479,8 +494,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		String hoTen = txtHoTen.getText().trim();
 		String sdt = txtSDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
-		String tienTra = txtTienKhachDua.getText().trim();
-		String tienThoi = txtTienThoi.getText().trim();
 
 		if (hoTen.trim().equals("")) {
 			showMsg("Họ tên khách hàng trống !");
@@ -488,7 +501,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			txtHoTen.requestFocus();
 			return false;
 		} else {
-
 			if ((hoTen.matches(
 					"^[a-zA-Z ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂ ưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]"))) {
 				showMsg("tên khách hàng không hợp lệ");
@@ -504,7 +516,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			txtSDT.requestFocus();
 			return false;
 		} else {
-
 			if (!(sdt.matches("^[0-9]{10}$"))) {
 				showMsg("Số điện thoại khách hàng không hợp lệ");
 				txtSDT.requestFocus();
@@ -519,29 +530,13 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			txtDiaChi.requestFocus();
 			return false;
 		} else {
-
 			if (diaChi.matches(
 					"^[a-z0-9A-Z ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂ ưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]")) {
 				showMsg("Địa chỉ không hợp lê");
 				txtDiaChi.requestFocus();
 				txtDiaChi.selectAll();
 				return false;
-
 			}
-		}
-
-		if (!(tienTra.length() > 0)) {
-			showMsg("Chưa nhập tiền khách trả");
-			txtTienKhachDua.selectAll();
-			txtTienKhachDua.requestFocus();
-			return false;
-		}
-
-		if (!(tienThoi.length() > 0)) {
-			showMsg("Nhập lại tiền khách trả");
-			txtTienKhachDua.selectAll();
-			txtTienKhachDua.requestFocus();
-			return false;
 		}
 
 		return true;
@@ -603,12 +598,10 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 	public double tongTien() {
 		double tongTien = 0;
 		int soLuongMH = modelTaoDonHang.getRowCount();
-		
+
 		for (int i = 0; i < soLuongMH; i++) {
-			String maLK = modelTaoDonHang.getValueAt(i, 0).toString();
-			double tongTienSP = Double.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(".", ""));
-			tongTien += Integer.parseInt((String) modelTaoDonHang.getValueAt(i, 3))
-					* Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(".", ""));
+			tongTien += Integer.parseInt(modelTaoDonHang.getValueAt(i, 3).toString())
+					* Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
 		}
 
 		return tongTien;
@@ -617,12 +610,23 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 	public boolean tinhTienThoi() {
 		if (!txtTongTien.getText().equals("")) {
 			String tienKT = txtTienKhachDua.getText().trim();
+
+			if (tienKT.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ");
+				return false;
+			}
+
+			tienKT = tienKT.replace(",", "");
+
 			double tienKhachTra = 0;
 			double tongTien = tongTien();
 			try {
 				tienKhachTra = Double.parseDouble(tienKT);
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ");
+				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ!");
+				txtTienKhachDua.selectAll();
+				txtTienKhachDua.requestFocus();
+				e.printStackTrace();
 				return false;
 			}
 
@@ -674,17 +678,19 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 	public void keyReleased(KeyEvent e) {
 		Object obj = e.getSource();
 		if (obj.equals(txtSDT)) {
-			try {
-				khachHang = customerFacade.getCustomerByPhoneNumer(txtSDT.getText().trim());
-				if (khachHang != null) {
-					txtDiaChi.setText(khachHang.getDiaChiKH());
-					txtHoTen.setText(khachHang.getHoTenKH());
-				} else {
-					txtDiaChi.setText("");
-					txtHoTen.setText("");
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				try {
+					khachHang = customerFacade.getCustomerByPhoneNumer(txtSDT.getText().trim());
+					if (khachHang != null) {
+						txtDiaChi.setText(khachHang.getDiaChiKH());
+						txtHoTen.setText(khachHang.getHoTenKH());
+					} else {
+						txtDiaChi.setText("");
+						txtHoTen.setText("");
+					}
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
 				}
-			} catch (RemoteException e1) {
-				e1.printStackTrace();
 			}
 		} else {
 			String keyword = txtTimKiem.getText().trim();
@@ -722,17 +728,18 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 					int quantity = Integer.parseInt(orderQuantity);
 
 					if (quantity > currentQuantity) {
-						showMsg(String.format("Số lượng sản phẩm chỉ còn %d", currentQuantity));
+						showMsg(String.format("Số lượng cửa mặt hàng này chỉ còn %d!", currentQuantity));
 						return;
 					}
 
 					orderItems.put(compID,
 							orderItems.containsKey(compID) ? orderItems.get(compID) + quantity : quantity);
-					double tongTienSP = Double.parseDouble(tableHangCoSan.getValueAt(row, 3).toString().replace(".", ""));
+					double tongTienSP = Double
+							.parseDouble(tableHangCoSan.getValueAt(row, 3).toString().replace(",", ""));
 					Thread addItemThread = new Thread(() -> {
 						modelTaoDonHang.addRow(new Object[] { tableHangCoSan.getValueAt(row, 0),
 								tableHangCoSan.getValueAt(row, 1), tableHangCoSan.getValueAt(row, 2),
-								orderItems.get(compID) + "", df.format(quantity*tongTienSP )});
+								orderItems.get(compID) + "", df.format(quantity * tongTienSP) });
 						latch.countDown();
 					});
 
@@ -743,7 +750,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 						e.printStackTrace();
 					}
 				}
-			}else {
+			} else {
 				if (orderItems.get(compID) >= currentQuantity) {
 					showMsg("Đã đạt giới hạn số lượng sản phẩm có thể đặt đối với mặt hàng này!");
 					return;
@@ -761,7 +768,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			return;
 
 		if (mouseClick == 3 && clickCount == 1) {
-			int confirm = JOptionPane.showConfirmDialog(null, "Hủy đặt sản phẩm này?", "Xác nhận",
+			int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn hủy đặt sản phẩm này?", "Xác nhận",
 					JOptionPane.YES_NO_OPTION);
 			if (confirm == JOptionPane.YES_OPTION) {
 				orderItems.remove(tableDonHang.getValueAt(row, 0).toString());
@@ -785,7 +792,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				return i;
 		return -1;
 	}
-//????????????????????????????
+
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		SwingUtilities.invokeLater(() -> {
@@ -799,8 +806,15 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				}
 
 				int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
+
+				if (soLuongDat < 1) {
+					showMsg(String.format("Số lượng đặt phải lơn hơn 0!"));
+					return;
+				}
+
 				int soLuongHienTai = Integer.valueOf(tableHangCoSan.getValueAt(findRowByValue(maLK), 4).toString());
-				double tongTienSP = Double.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(".", ""));
+				double tongTienSP = Double
+						.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(",", ""));
 				if (soLuongDat > soLuongHienTai) {
 					showMsg(String.format("Sản phẩm này chỉ có %s mặt hàng, không thể đặt quá số lượng trên!",
 							soLuongHienTai));
@@ -808,7 +822,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 					tableDonHang.setValueAt(1 + "", i, 3);
 					return;
 				}
-				
+
 				tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
 				orderItems.put(maLK, soLuongDat);
 			}

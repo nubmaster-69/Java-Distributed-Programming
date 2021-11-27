@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -173,16 +174,9 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		tableDanhSachNhanVien.setCursor(new Cursor(Cursor.HAND_CURSOR));
-//		tableDanhSachNhanVien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tableDanhSachNhanVien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		jScrollPane1.setViewportView(tableDanhSachNhanVien);
-		if (tableDanhSachNhanVien.getColumnModel().getColumnCount() > 0) {
-			tableDanhSachNhanVien.getColumnModel().getColumn(0).setResizable(false);
-			tableDanhSachNhanVien.getColumnModel().getColumn(1).setResizable(false);
-			tableDanhSachNhanVien.getColumnModel().getColumn(2).setResizable(false);
-			tableDanhSachNhanVien.getColumnModel().getColumn(3).setResizable(false);
-		}
-		
 		jScrollPane1.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
 		btnThem.setText("Thêm");
