@@ -126,7 +126,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		lblTimKiem = new JLabel();
 
 		DatePickerSettings dateSettings = new DatePickerSettings();
-		dateSettings.setFontValidDate(new Font("SansSerif", 0, 14));
+		dateSettings.setFontValidDate(new Font("SansSerif", 0, 16));
 		dateSettings.setFormatForDatesCommonEra("dd-MM-yyyy");
 		dateSettings.setAllowKeyboardEditing(false);
 		dpNgaySinh = new DatePicker(dateSettings);

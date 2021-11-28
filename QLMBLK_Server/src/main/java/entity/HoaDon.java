@@ -16,16 +16,16 @@ public class HoaDon implements Serializable {
 
 	@Id
 	private String maHoaDon;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "maNhanVien")
 	private NhanVien maNhanVien;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "maKhachHang")
 	private KhachHang maKhachHang;
 	private LocalDate ngayLapHoaDon;
-	
+
 	@OneToMany(mappedBy = "maHoaDon")
 	private List<ChiTietHoaDon> chiTietHoaDon;
 

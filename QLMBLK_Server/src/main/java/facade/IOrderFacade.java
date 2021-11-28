@@ -12,7 +12,7 @@ public interface IOrderFacade extends Remote {
 	String getLastBillID() throws RemoteException;
 
 	boolean addNewBill(HoaDon hoaDon) throws RemoteException;
-
+	
 //	Double getTotalUnitPriceByDay(int day) throws RemoteException;
 
 //	Double getTotalUnitPriceByYear(int year) throws RemoteException;

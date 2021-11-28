@@ -11,7 +11,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import javax.swing.JTable;
+
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -61,6 +66,52 @@ public class Utility extends UnicastRemoteObject implements IUtilityFacade {
 					String.format("%s/%s.xlsx", filePath, formatFileName(type)))) {
 				workBook.write(fos);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @author Hiếu
+	 * @param table:       JTable chứa dữ liệu sẽ được xuất ra Excel
+	 * @param loaiThongKe: loại thống kê, vd: ThongKeSanPhamBanChay,...
+	 * @param duongDan:    Đường dẫn sẽ lưu file mà người dùng đã chọn/chỉ định
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public void exportFileToExcel(JTable table, String type, String filePath) throws RemoteException {
+		try {
+
+			@SuppressWarnings("resource")
+			XSSFWorkbook workBook = new XSSFWorkbook();
+			XSSFSheet sheet = workBook.createSheet(type);
+
+			XSSFCellStyle tCs = workBook.createCellStyle();
+			tCs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			tCs.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+
+			Row headerRow = sheet.createRow(0);
+			int soLuongCot = table.getColumnCount();
+			for (int i = 0; i < soLuongCot; i++) {
+				headerRow.createCell(i).setCellValue(table.getColumnName(i));
+				sheet.getRow(0).getCell(i).setCellStyle(tCs);
+			}
+
+			int contentRowCount = 1;
+			int soLuongHang = table.getRowCount();
+			for (int i = 0; i < soLuongHang; i++) {
+				Row currentRow = sheet.createRow(contentRowCount++);
+				for (int j = 0; j < soLuongCot; j++) {
+					currentRow.createCell(j).setCellValue(table.getValueAt(i, j).toString());
+				}
+			}
+
+			try (FileOutputStream fos = new FileOutputStream(
+					String.format("%s/%s.xlsx", filePath, formatFileName(type)))) {
+				workBook.write(fos);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

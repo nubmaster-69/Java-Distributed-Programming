@@ -1,13 +1,17 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.Naming;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -15,11 +19,14 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
+
+import facade.IUtilityFacade;
 
 public class PanelThongKe extends JPanel {
 
@@ -65,7 +72,15 @@ public class PanelThongKe extends JPanel {
 	private JTextField txtDoanhThu;
 	private JTextField txtTongTienBanChay;
 
+	private IUtilityFacade utilityFacade = null;
+	private JFileChooser fileChooser = null;
+
 	public PanelThongKe() {
+		try {
+			utilityFacade = (IUtilityFacade) Naming.lookup("rmi://localhost:1341/utilityFacade");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		initComponents();
 	}
 
@@ -106,9 +121,11 @@ public class PanelThongKe extends JPanel {
 
 		dpNgayKetThuc = new DatePicker(dateSettingsStart);
 		dpNgayKetThuc.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		dpNgayKetThuc.setDateToToday();
 
 		dpNgayBatDau = new DatePicker(dateSettingsEnd);
 		dpNgayBatDau.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		dpNgayBatDau.setDateToToday();
 
 		lblTieuDe.setText("Thống Kê Bán Hàng");
 		lblTieuDe.setFont(new Font("SansSerif", 1, 30));
@@ -122,6 +139,8 @@ public class PanelThongKe extends JPanel {
 		TPThongKe.setFont(new Font("SansSerif", 0, 14));
 
 		btnXuatFileSP.setText("Xuất file");
+		btnXuatFileSP.setFocusable(false);
+
 		btnXuatFileSP.setFont(new Font("SansSerif", 0, 22));
 		btnXuatFileSP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -130,20 +149,17 @@ public class PanelThongKe extends JPanel {
 		});
 
 		txtTongTienBanChay.setFont(new Font("SansSerif", 0, 20));
-		txtTongTienBanChay.setText("VND");
-		txtTongTienBanChay.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				txtTongTienBanChayActionPerformed(evt);
-			}
-		});
 
 		lblTongTienSanPham.setText("Tổng tiền sản phẩm đã bán:");
 		lblTongTienSanPham.setFont(new Font("SansSerif", 0, 22));
 
 		modelSPBanChay = new DefaultTableModel(
 				new String[] { "Tên Linh Kiện", "Loại Linh Kiện", "Thương Hiệu", "Số Lượng Đã Bán", "Tổng Tiền" }, 0);
-		tblSPBanChay.setModel(modelSPBanChay);
 
+		tblSPBanChay.setModel(modelSPBanChay);
+		tblSPBanChay.setDefaultEditor(Object.class, null);
+
+		tblSPBanChay.setGridColor(Color.WHITE);
 		tblSPBanChay.setFocusable(false);
 		tblSPBanChay.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		tblSPBanChay.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -178,11 +194,15 @@ public class PanelThongKe extends JPanel {
 								.addComponent(btnXuatFileSP))
 						.addGap(23, 23, 23)));
 
+		TPThongKe.setFocusable(false);
+
 		pnlSPBanChay.setFocusable(false);
 		pnlSPBanChay.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		TPThongKe.addTab("Các sản phẩm bán chạy nhất", pnlSPBanChay);
 
 		btnXuatFileSPBanCham.setText("Xuất file");
+		btnXuatFileSPBanCham.setFocusable(false);
+
 		btnXuatFileSPBanCham.setFont(new Font("SansSerif", 0, 22));
 		btnXuatFileSPBanCham.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -192,14 +212,17 @@ public class PanelThongKe extends JPanel {
 
 		modelSPBanCham = new DefaultTableModel(
 				new String[] { "Tên Linh Kiện", "Loại Linh Kiện", "Thương Hiệu", "Số lượng đã bán", "Đơn giá" }, 0);
-		tblSPBanCham.setModel(modelSPBanCham);
 
+		tblSPBanCham.setModel(modelSPBanCham);
+		tblSPBanCham.setDefaultEditor(Object.class, null);
+
+		tblSPBanCham.setGridColor(Color.WHITE);
 		tblSPBanCham.setFocusable(false);
 		tblSPBanCham.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		tblSPBanCham.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
 		tblSPBanCham.setRowHeight(20);
 
-		DefaultTableCellRenderer renderer2 = (DefaultTableCellRenderer) tblSPBanChay.getTableHeader()
+		DefaultTableCellRenderer renderer2 = (DefaultTableCellRenderer) tblSPBanCham.getTableHeader()
 				.getDefaultRenderer();
 		renderer2.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -224,7 +247,9 @@ public class PanelThongKe extends JPanel {
 				new String[] { "Họ Tên KH", "Địa Chỉ", "Số Lượng Đơn Hàng", "Tổng Tiền" }, 0);
 
 		tblKHTiemNang.setModel(modelKHTiemNang);
+		tblKHTiemNang.setDefaultEditor(Object.class, null);
 
+		tblKHTiemNang.setGridColor(Color.WHITE);
 		tblKHTiemNang.setFocusable(false);
 		tblKHTiemNang.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		tblKHTiemNang.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -253,14 +278,10 @@ public class PanelThongKe extends JPanel {
 		lblTongDoanhThu.setFont(new Font("SansSerif", 0, 22));
 
 		txtDoanhThu.setFont(new Font("SansSerif", 0, 22));
-		txtDoanhThu.setText("VND");
-		txtDoanhThu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				txtDoanhThuActionPerformed(evt);
-			}
-		});
 
 		btnXuatFileDoanhThu.setText("Xuất file");
+		btnXuatFileDoanhThu.setFocusable(false);
+
 		btnXuatFileDoanhThu.setFont(new Font("SansSerif", 0, 22));
 		btnXuatFileDoanhThu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -271,7 +292,9 @@ public class PanelThongKe extends JPanel {
 		modelDoanhThu = new DefaultTableModel(new String[] { "Khách Hàng", "Nhân Viên", "Ngày Lập", "Tổng Tiền" }, 0);
 
 		tblDoanhThu.setModel(modelDoanhThu);
+		tblDoanhThu.setDefaultEditor(Object.class, null);
 
+		tblDoanhThu.setGridColor(Color.WHITE);
 		tblDoanhThu.setFocusable(false);
 		tblDoanhThu.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		tblDoanhThu.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -342,22 +365,78 @@ public class PanelThongKe extends JPanel {
 								.addGap(18, 18, 18)))
 				.addComponent(TPThongKe, GroupLayout.PREFERRED_SIZE, 494, GroupLayout.PREFERRED_SIZE)
 				.addContainerGap()));
-		
-		modelSPBanChay.addRow(new Object[] {1, 2, 3, 4, 66});
+
+		//------ Đoạn này dùng để test, nhớ xóa
+		modelSPBanChay.addRow(new Object[] { "Tét", "Tính năng", "Xuất", "File Excel", "neft" });
+
+		capNhatTongTienThongKe(modelSPBanChay, 12, 123.535);
+		capNhatTongTienThongKe(modelKHTiemNang, 12, 123.535);
+		capNhatTongTienThongKe(modelDoanhThu, -1, 123.535);
+		//------
 	}
 
 	private void btnXuatFileDoanhThuActionPerformed(ActionEvent evt) {
-	}
-
-	private void txtDoanhThuActionPerformed(ActionEvent evt) {
+		export(tblDoanhThu, "ThongKeDoanhThu", "Thống kê doanh thu");
 	}
 
 	private void btnXuatFileSPBanChamActionPerformed(ActionEvent evt) {
-	}
-
-	private void txtTongTienBanChayActionPerformed(ActionEvent evt) {
+		export(tblSPBanCham, "ThongKeSanPhamBanCham", "Thống kê sản phẩm bán chậm");
 	}
 
 	private void btnXuatFileSPActionPerformed(ActionEvent evt) {
+		export(tblSPBanChay, "ThongKeSanPhamBanChay", "Thống kê sản phẩm bán chạy");
+	}
+
+	/**
+	 * @author Hiếu
+	 *         <p>
+	 *         Hàm có chức năng tự động cập nhật số lượng và tổng tiền cho table
+	 *         </p>
+	 * @param model:    model cần thực hiện cập nhật
+	 * @param soLuong:  nếu số lượng == -1 sẽ không gán trường này
+	 * @param tongTien: tổng tiền
+	 */
+	private void capNhatTongTienThongKe(DefaultTableModel model, int soLuong, double tongTien) {
+		int len = model.getColumnCount();
+
+		Object[] o = " ".repeat(len).split("");
+
+		if (soLuong != -1)
+			o[len - 2] = soLuong + "";
+
+		o[len - 1] = tongTien + "";
+
+		model.insertRow(0, o);
+	}
+
+	private void export(JTable table, String fileName, String title) {
+		fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory().toPath().toString());
+
+		fileChooser.setDialogTitle(title);
+
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setAcceptAllFileFilterUsed(false);
+
+		if (table.getRowCount() < 1) {
+			showMsg("Không có dữ liệu để xuất file thống kê!");
+			return;
+		}
+
+		int approve = fileChooser.showSaveDialog(fileChooser);
+		if (approve == JFileChooser.APPROVE_OPTION) {
+			String duongDan = fileChooser.getSelectedFile().toString().replace("\\", "/");
+
+			try {
+				utilityFacade.exportFileToExcel(table, fileName, duongDan);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			showMsg("Xuất file thống kê thành công!");
+		}
+	}
+
+	private void showMsg(String msg) {
+		JOptionPane.showMessageDialog(null, msg);
 	}
 }
