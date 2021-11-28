@@ -600,8 +600,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		int soLuongMH = modelTaoDonHang.getRowCount();
 
 		for (int i = 0; i < soLuongMH; i++) {
-			tongTien += Integer.parseInt(modelTaoDonHang.getValueAt(i, 3).toString())
-					* Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
+			tongTien += Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
 		}
 
 		return tongTien;
@@ -613,6 +612,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 			if (tienKT.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ");
+				txtTienKhachDua.selectAll();
+				txtTienKhachDua.requestFocus();
 				return false;
 			}
 
@@ -740,6 +741,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 						modelTaoDonHang.addRow(new Object[] { tableHangCoSan.getValueAt(row, 0),
 								tableHangCoSan.getValueAt(row, 1), tableHangCoSan.getValueAt(row, 2),
 								orderItems.get(compID) + "", df.format(quantity * tongTienSP) });
+						
 						latch.countDown();
 					});
 
@@ -758,6 +760,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				orderItems.put(compID, orderItems.get(compID) + 1);
 				tableDonHang.setValueAt(orderItems.get(compID) + "", modifyRow, 3);
 			}
+			
+			updateTableDonHang();
 		}
 	}
 
@@ -802,13 +806,17 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 				if (!isValidOrderQuantity(tableDonHang.getValueAt(i, 3).toString())) {
 					showMsg(String.format("Số lượng đặt phải là số! Vui lòng kiểm tra lại!"));
+					tableDonHang.setValueAt("1", i, 3);
+					orderItems.put(maLK, 1);
 					return;
 				}
-
+				
 				int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
-
-				if (soLuongDat < 1) {
-					showMsg(String.format("Số lượng đặt phải lơn hơn 0!"));
+				
+				if(soLuongDat == 0) {
+					orderItems.remove(tableDonHang.getValueAt(i, 0).toString());
+					modelTaoDonHang.removeRow(i);
+					updateTableDonHang();
 					return;
 				}
 
@@ -822,16 +830,31 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 					tableDonHang.setValueAt(1 + "", i, 3);
 					return;
 				}
-
+				
 				tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
 				orderItems.put(maLK, soLuongDat);
+				
+				txtTongTien.setText(String.valueOf(df.format(tongTien())));
+				tableDonHang.clearSelection();
 			}
-
-			txtTongTien.setText(String.valueOf(df.format(tongTien())));
 		});
 	}
 
 	private boolean isValidOrderQuantity(String quantity) {
 		return quantity.matches("\\d+");
+	}
+	
+	private void updateTableDonHang() {
+		int len = modelTaoDonHang.getRowCount();
+		
+		for(int i = 0; i < len; i++) {
+			String maLK = tableDonHang.getValueAt(i, 0).toString();
+			int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
+			double tongTienSP = Double
+					.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(",", ""));
+			tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
+		}
+		
+		txtTongTien.setText(String.valueOf(df.format(tongTien())));
 	}
 }

@@ -81,6 +81,10 @@ public class FormThongTinNhanVien extends JFrame {
 			jButton1.setBackground(Color.decode(btnUpdateColor));
 			dpNgaySinh.setEnabled(false);
 			txtMaNV.setEnabled(false);
+			txtHoTen.setEnabled(false);
+			datHanhDongChoTxtSDT();
+			datHanhDongChopfMatKhau();
+			datHanhDongChoTxtDiaChi();
 		}
 	}
 
@@ -408,13 +412,7 @@ public class FormThongTinNhanVien extends JFrame {
 			return false;
 		}
 
-		if (!(hoTen.matches(
-				"^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$"))) {
-			JOptionPane.showMessageDialog(this, "Tên không hợp lệ");
-			txtHoTen.requestFocus();
-			txtHoTen.selectAll();
-			return false;
-		}
+
 
 		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
 				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
@@ -428,6 +426,54 @@ public class FormThongTinNhanVien extends JFrame {
 
 		return true;
 	}
+	private boolean ktraSDT() {
+		String sdt = txtSoDT.getText().trim();
+    	String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+    	
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSoDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "SDT không hợp lệ");
+			txtSoDT.requestFocus();
+			txtSoDT.selectAll();
+			return false;
+		}
+		return true;
+	}
+    private void datHanhDongChoTxtSDT(){
+        txtSoDT.addActionListener((e) -> {
+        	if(ktraSDT())
+        		pfMatKhau.requestFocus();
+        	
+        });
+    }
+    private void datHanhDongChopfMatKhau(){
+        pfMatKhau.addActionListener((e) -> {
+        	if(pfMatKhau.getText().trim().length()>0)
+        		txtDiaChi.requestFocus();
+        	else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
+			}
+        	
+        });
+    }
+    private void datHanhDongChoTxtDiaChi(){
+        txtDiaChi.addActionListener((e) -> {
+        	if(txtDiaChi.getText().trim().length()>0)
+        		txtSoDT.requestFocus();
+        	else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
+			}
+        	
+        });
+    }
+    
+    
 
 	public JButton getBtnUpdate() {
 		return btnUpdate;
