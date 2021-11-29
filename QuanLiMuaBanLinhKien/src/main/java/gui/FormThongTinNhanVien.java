@@ -65,11 +65,12 @@ public class FormThongTinNhanVien extends JFrame {
 
 	private String btnExitColor = "#e74c3c";
 	private String btnUpdateColor = "#3498db";
+	private NhanVien nvlogin;
 
-	public FormThongTinNhanVien(int formType, NhanVien nv) {
+	public FormThongTinNhanVien(int formType, NhanVien nv,NhanVien nvloginn) {
 		nhanVien = nv;
 		cheDo = formType;
-
+		nvlogin=nvloginn;
 		initComponents();
 		if (formType == FORM_XEM_THONG_TIN) {
 			jButton1.setText("Thoát");
@@ -85,6 +86,8 @@ public class FormThongTinNhanVien extends JFrame {
 			datHanhDongChoTxtSDT();
 			datHanhDongChopfMatKhau();
 			datHanhDongChoTxtDiaChi();
+			if(nvloginn.getMaNhanVien().equals(nv.getMaNhanVien()))
+				cbxChucVu.setEnabled(false);
 		}
 	}
 
