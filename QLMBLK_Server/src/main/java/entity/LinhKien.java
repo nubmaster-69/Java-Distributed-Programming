@@ -1,6 +1,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -119,6 +120,20 @@ public class LinhKien implements Serializable {
 		return "LinhKien [maLinhKien=" + maLinhKien + ", tenLinhKien=" + tenLinhKien + ", loaiLinhKien=" + loaiLinhKien
 				+ ", moTa=" + moTa + ", donGia=" + donGia + ", thuongHieu=" + thuongHieu + ", soLuongTon=" + soLuongTon
 				+ ", ngayNhap=" + ngayNhap + ", baoHanh=" + baoHanh + "]";
+	}
+	
+	public Object[] convertToRowTableInGDThongKe(int sl) {
+		DecimalFormat df = new DecimalFormat("#,###");
+		return new Object[]{tenLinhKien,loaiLinhKien,thuongHieu
+				,sl,df.format(donGia*sl) + " VNĐ"
+		};
+	}
+	
+	public Object[] convertToRowTableInGDThongKeWorst(int sl) {
+		DecimalFormat df = new DecimalFormat("#,###");
+		return new Object[]{tenLinhKien,loaiLinhKien,thuongHieu
+				,sl,df.format(donGia) + " VNĐ"
+		};
 	}
 
 }

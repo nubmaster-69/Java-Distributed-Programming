@@ -1,6 +1,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -67,6 +68,17 @@ public class KhachHang implements Serializable {
 	public String toString() {
 		return "KhachHang [maKhachHang=" + maKhachHang + ", hoTenKH=" + hoTenKH + ", soDienThoaiKH=" + soDienThoaiKH
 				+ ", diaChiKH=" + diaChiKH + "]";
+	}
+	
+	public Object[] convertToRowTableInGDThongKe(List<HoaDon> list) {
+		DecimalFormat df = new DecimalFormat("#,###");
+		double tien = 0;
+		for(HoaDon hd : list) {
+			tien += hd.tongTienHoaDon();
+		}
+		return new Object[]{hoTenKH,diaChiKH,list.size()
+				,df.format(tien) + " VNĐ"
+		};
 	}
 
 }

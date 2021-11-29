@@ -2,6 +2,8 @@ package dao;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +86,80 @@ public class OrderDAO extends UnicastRemoteObject implements IOrderFacade {
 		}
 
 		return false;
+	}
+
+	@Override
+	public HoaDon getBillsByID(String id) throws RemoteException {
+		HoaDon bill = null;
+		Session session = sessionFactory.getCurrentSession();
+
+		Transaction trans = session.getTransaction();
+
+		try {
+			trans.begin();
+
+			bill = session.createNativeQuery("select * from HoaDon where maHoaDon = '"+id+"'", HoaDon.class).getSingleResult();
+
+			trans.commit();
+		} catch (Exception e) {
+			trans.rollback();
+			e.printStackTrace();
+		}
+
+		return bill;
+	}
+
+	@Override
+	public List<HoaDon> getBillsByMaKH(String id,LocalDate fromDate, LocalDate toDate) throws RemoteException {
+		List<HoaDon> bills = new ArrayList<>();
+		
+		Session session = sessionFactory.openSession();
+		Transaction trans = session.getTransaction();
+		
+		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+		String sFromDate = fromDate.format(formatters);
+		String stoDate = toDate.format(formatters);
+		try {
+			trans.begin();
+
+			bills = session.createNativeQuery("select * from HoaDon where maKhachHang = '"+id+"' "
+					+ "and ngayLapHoaDon between '"+sFromDate+"' and '"+stoDate+"'", HoaDon.class).getResultList();
+
+			trans.commit();
+			session.clear();
+		} catch (Exception e) {
+			trans.rollback();
+			e.printStackTrace();
+		}
+
+		return bills;
+	}
+
+	@Override
+	public List<HoaDon> getBillsByDate(LocalDate fromDate, LocalDate toDate) throws RemoteException {
+		List<HoaDon> bills = new ArrayList<>();
+		
+		Session session = sessionFactory.openSession();
+		Transaction trans = session.getTransaction();
+		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+		String sFromDate = fromDate.format(formatters);
+		String stoDate = toDate.format(formatters);
+		String sql = "select * from HoaDon where ngayLapHoaDon between '"+sFromDate+"' and '"+stoDate+"'";
+		try {
+			trans.begin();
+
+			bills = session.createNativeQuery(sql, HoaDon.class).getResultList();
+
+			trans.commit();
+			session.clear();
+		} catch (Exception e) {
+			trans.rollback();
+			e.printStackTrace();
+		}
+
+		return bills;
 	}
 
 //  2 hàm bên dưới chưa chuyển đổi sang RMI
