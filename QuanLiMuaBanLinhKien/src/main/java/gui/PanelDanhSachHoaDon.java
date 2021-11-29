@@ -95,6 +95,7 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener, KeyLis
 		lblTieuDe.setText("Danh Sách Hóa Đơn");
 
 		txtTimKiem.setFont(new Font("SansSerif", 0, 16));
+		txtTimKiem.addKeyListener(this);
 
 		lblTimKiem.setFont(new Font("SansSerif", 0, 18));
 		lblTimKiem.setHorizontalAlignment(SwingConstants.CENTER);

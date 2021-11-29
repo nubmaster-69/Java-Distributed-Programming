@@ -92,7 +92,7 @@ public class FormThongTinNhanVien extends JFrame {
 			jButton1.setBackground(Color.decode(btnUpdateColor));
 			dpNgaySinh.setEnabled(false);
 			txtMaNV.setEnabled(false);
-			txtHoTen.setEnabled(false);
+//			txtHoTen.setEnabled(false);
 			datHanhDongChoTxtSDT();
 			datHanhDongChopfMatKhau();
 			datHanhDongChoTxtDiaChi();

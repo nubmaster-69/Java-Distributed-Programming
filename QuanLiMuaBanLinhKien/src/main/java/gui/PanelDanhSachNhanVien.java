@@ -420,7 +420,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && ngaySinh != null)) {
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các trường thông tin!");
-			dpNgaySinh.openPopup();
+//			dpNgaySinh.openPopup();
 		}
 
 		if (!(maNV.length() > 0)) {
@@ -429,6 +429,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (ngaySinh == null) {
+			dpNgaySinh.openPopup();
 			return false;
 		}
 
@@ -488,12 +489,16 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (ngaySinh.isAfter(LocalDate.now())) {
-			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại!");
+			
+			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại!\nVui lòng chọn lại");
+			dpNgaySinh.openPopup();
 			return false;
 		}
 
 		if (tinhTuoi(ngaySinh) < 18) {
-			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (tuổi phải từ 18 trở lên)!");
+			
+			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (tuổi phải từ 18 trở lên)!\nVui lòng chọn lại");
+			dpNgaySinh.openPopup();
 			return false;
 		}
 
@@ -675,7 +680,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private void datHanhDongChoTxtHoTen() {
 		txtHoTen.addActionListener((e) -> {
 			if (ktraHoten())
-				txtSDT.requestFocus();
+				dpNgaySinh.openPopup();
 		});
 	}
 
@@ -723,7 +728,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 	private void datHanhDongChopfMatKhau() {
 		txtMatKhau.addActionListener((e) -> {
-			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
+			txtMaNhanVien.requestFocus();
 		});
 	}
 
