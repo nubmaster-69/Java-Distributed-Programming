@@ -37,14 +37,14 @@ public class AppServer {
 			IOrderDetailFacade orderDetailFacade = new OrderDetailDAO();
 			IUtilityFacade utilityFacade = new Utility();
 			
-			Naming.bind("rmi://localhost:1341/employeeFacade", employeeFacade);
-			Naming.bind("rmi://localhost:1341/componentFacade", componentFacade);
-			Naming.bind("rmi://localhost:1341/customerFacade", customerFacade);
-			Naming.bind("rmi://localhost:1341/orderFacade", orderFacade);
-			Naming.bind("rmi://localhost:1341/orderDetailFacade", orderDetailFacade);
-			Naming.bind("rmi://localhost:1341/utilityFacade", utilityFacade);
+			Naming.bind(String.format("rmi://localhost:%d/employeeFacade", PORT), employeeFacade);
+			Naming.bind(String.format("rmi://localhost:%d/componentFacade", PORT), componentFacade);
+			Naming.bind(String.format("rmi://localhost:%d/customerFacade", PORT), customerFacade);
+			Naming.bind(String.format("rmi://localhost:%d/orderFacade", PORT), orderFacade);
+			Naming.bind(String.format("rmi://localhost:%d/orderDetailFacade", PORT), orderDetailFacade);
+			Naming.bind(String.format("rmi://localhost:%d/utilityFacade", PORT), utilityFacade);
 			
-			System.out.printf("Server bound and started at port %d! Ready to response!", PORT);
+			System.out.printf("Server bound and started at port %d!", PORT);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -68,12 +68,10 @@ public class FrameChiTietHoaDon extends JFrame {
 		jLabel4.setText("Địa chỉ");
 		jLabel4.setFont(new Font("SansSerif", 0, 16));
 
-		txtDiaChi.setEditable(false);
 		txtDiaChi.setFont(new Font("SansSerif", 0, 16));
 
 		tableDonHang = new JTable(model = new DefaultTableModel(
-				new String[] { "Mã linh kiện", "Tên linh kiện", "Loại linh kiện", "Thương hiệu", "Số lượng", "Giá" },
-				0));
+				new String[] { "Mã Linh Kiện", "Tên Linh Kiện", "Loại Linh Kiện", "Thương Hiệu", "Số Lượng", "Đơn Giá" },0));
 
 		tableDonHang.setDefaultEditor(Object.class, null);
 		tableDonHang.setFont(new Font("SansSerif", Font.PLAIN, 14));

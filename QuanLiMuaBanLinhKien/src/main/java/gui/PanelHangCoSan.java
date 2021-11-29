@@ -161,7 +161,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		jLabel1.setText("Danh sách sản phẩm tại cửa hàng");
 
 		model = new DefaultTableModel(
-				new String[] { "Mã linh kiện", "Tên linh kiện", "Thương hiệu", "Giá", "Số lượng" }, 0);
+				new String[] { "Mã Linh Kiện", "Tên Linh Kiện", "Thương Hiệu", "Giá", "Số Lượng" }, 0);
 
 		tableHangCoSan = new JTable(model);
 
@@ -197,7 +197,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		tableHangCoSan.getColumnModel().getColumn(4).setPreferredWidth(10);
 
 		for (int i = 0; i < tableHangCoSan.getColumnCount(); ++i) {
-			if (i == 1 || i == 2)
+			if (i == 1)
 				tableHangCoSan.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
 			else if (i == 3 || i == 4)
 				tableHangCoSan.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
@@ -246,7 +246,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		jLabel7.setFont(new Font("Tahoma", Font.PLAIN, 15));
 
 		modelTaoDonHang = new DefaultTableModel(
-				new String[] { "Mã LK", "Tên Linh Kiện", "Thương Hiệu", "Số Lượng", "Tổng tiền" }, 0);
+				new String[] { "Mã LK", "Tên Linh Kiện", "Thương Hiệu", "Số Lượng", "Tổng Tiền" }, 0);
 
 		tableDonHang = new JTable(modelTaoDonHang) {
 			private static final long serialVersionUID = 1L;
@@ -827,6 +827,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				orderItems.remove(tableDonHang.getValueAt(row, 0).toString());
 				modelTaoDonHang.removeRow(row);
 			}
+			
+			updateTableDonHang();
 		}
 	}
 

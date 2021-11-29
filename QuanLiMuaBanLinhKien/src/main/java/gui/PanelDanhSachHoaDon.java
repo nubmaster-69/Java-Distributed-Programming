@@ -3,6 +3,8 @@ package gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.Naming;
@@ -15,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -23,7 +26,7 @@ import javax.swing.table.TableRowSorter;
 import entity.HoaDon;
 import facade.IOrderFacade;
 
-public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
+public class PanelDanhSachHoaDon extends JPanel implements MouseListener, KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -48,7 +51,7 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 		txtTimKiem = new JTextField();
 		lblTimKiem = new JLabel();
 
-		model = new DefaultTableModel(new String[] { "Mã hóa đơn", "Mã nhân viên", "Mã khách hàng", "Ngày lập" }, 0);
+		model = new DefaultTableModel(new String[] { "Mã Hóa Đơn", "Nhân Viên Lập Hóa Đơn", "Họ Tên Khách Hàng", "Ngày Lập Hóa Đơn" }, 0);
 		jTable1 = new JTable(model);
 		rowSorter = new TableRowSorter<DefaultTableModel>(model);
 		jTable1.setRowSorter(rowSorter);
@@ -66,8 +69,14 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 		
+		DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
+		leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+		
 		for (int i = 0; i < jTable1.getColumnCount(); ++i) {
-			jTable1.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+			if(i == 1 || i == 2)
+				jTable1.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
+			else
+				jTable1.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
 
 		jScrollPane1.setViewportView(jTable1);
@@ -138,8 +147,8 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 			List<HoaDon> bills = orderFacade.getBills();
 
 			bills.forEach(bill -> {
-				model.addRow(new Object[] { bill.getMaHoaDon(), bill.getMaNhanVien().getMaNhanVien(),
-						bill.getMaKhachHang().getMaKhachHang(), bill.getNgayLapHoaDon() });
+				model.addRow(new Object[] { bill.getMaHoaDon(), bill.getMaNhanVien().getHoTenNV(),
+						bill.getMaKhachHang().getHoTenKH(), bill.getNgayLapHoaDon() });
 			});
 
 		} catch (Exception e) {
@@ -177,5 +186,21 @@ public class PanelDanhSachHoaDon extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if (e.getSource().equals(txtTimKiem)) {
+			String keyword = txtTimKiem.getText().trim();
+			rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword));
+		}
 	}
 }

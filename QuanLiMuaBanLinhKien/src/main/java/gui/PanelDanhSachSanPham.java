@@ -152,7 +152,7 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		lblTimKiem.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTimKiem.setText("Tìm Sảm Phẩm");
 
-		model = new DefaultTableModel(new String[] { "Mã LK", "Tên LK", "Thương hiệu", "Đơn giá", "Số lượng" }, 0);
+		model = new DefaultTableModel(new String[] { "Mã LK", "Tên LK", "Thương Hiệu", "Đơn Giá", "Số Lượng" }, 0);
 
 		tableDanhSachSanPham = new JTable(model);
 		rowSorter = new TableRowSorter<DefaultTableModel>(model);
@@ -179,9 +179,9 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
 
 		for (int i = 0; i < tableDanhSachSanPham.getColumnCount(); ++i) {
-			if (i == 1 || i == 2 || i == 3 || i == 4)
+			if (i == 1)
 				tableDanhSachSanPham.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-			else if (i == 5 || i == 6 || i == 7)
+			else if (i == 3 || i == 4)
 				tableDanhSachSanPham.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
 			else
 				tableDanhSachSanPham.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
@@ -229,13 +229,13 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		lblTieuDe.setText("Danh sách sản phẩm");
 
 		btnXoa.setText("Xóa");
+		
+		btnXoa.setForeground(new Color(240,240,240));
+		btnXoa.setOpaque(false);
+		btnXoa.setContentAreaFilled(false);
+		btnXoa.setBorderPainted(false);
 		btnXoa.setFocusable(false);
 		btnXoa.setFont(new Font("SansSerif", 0, 16));
-		btnXoa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				btnXoaActionPerformed();
-			}
-		});
 
 		lblThongTinSanPham.setFont(new Font("SansSerif", 1, 24));
 		lblThongTinSanPham.setText("Thông tin sản phẩm");
@@ -456,26 +456,26 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		loadProductsData();
 	}
 
-	private void btnXoaActionPerformed() {
-		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa?", "Xác nhận",
-				JOptionPane.YES_NO_OPTION);
-
-		if (confirm == 0) {
-
-			while (tableDanhSachSanPham.getSelectedRowCount() != 0) {
-				int selectedRow = tableDanhSachSanPham.getSelectedRow();
-				String maLK = tableDanhSachSanPham.getValueAt(selectedRow, 0).toString();
-				try {
-					if (componentFacade.removeComponentByID(maLK)) {
-						selectedRow = tableDanhSachSanPham.convertRowIndexToModel(selectedRow);
-						model.removeRow(selectedRow);
-					}
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+//	private void btnXoaActionPerformed() {
+//		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa?", "Xác nhận",
+//				JOptionPane.YES_NO_OPTION);
+//
+//		if (confirm == 0) {
+//
+//			while (tableDanhSachSanPham.getSelectedRowCount() != 0) {
+//				int selectedRow = tableDanhSachSanPham.getSelectedRow();
+//				String maLK = tableDanhSachSanPham.getValueAt(selectedRow, 0).toString();
+//				try {
+//					if (componentFacade.removeComponentByID(maLK)) {
+//						selectedRow = tableDanhSachSanPham.convertRowIndexToModel(selectedRow);
+//						model.removeRow(selectedRow);
+//					}
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//	}
 
 	private void loadProductsData() {
 		model.getDataVector().removeAllElements();
@@ -592,8 +592,6 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 
 		if (o.equals(btnThem))
 			btnThemActionPerformed();
-		else if (o.equals(btnXoa))
-			btnXoaActionPerformed();
 		else if (o.equals(btnLamMoi))
 			btnLamMoiActionPerformed();
 	}

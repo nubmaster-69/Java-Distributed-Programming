@@ -102,7 +102,7 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 		txtTimKiem = new JTextField();
 		txtTimKiem.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
-		model = new DefaultTableModel(new String[] { "Mã khách hàng", "Tên khách hàng", "SĐT", "Địa chỉ" }, 0);
+		model = new DefaultTableModel(new String[] { "Mã Khách Hàng", "Tên Khách Hàng", "Số ĐT", "Địa Chỉ" }, 0);
 		tableDanhSachKhachHang = new JTable(model);
 		rowSorter = new TableRowSorter<>(model);
 		tableDanhSachKhachHang.setRowSorter(rowSorter);
@@ -133,10 +133,10 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 		leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 
 		for (int i = 0; i < tableDanhSachKhachHang.getColumnCount(); ++i) {
-			if (i != 0)
-				tableDanhSachKhachHang.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-			else
+			if (i == 0 || i == 2)
 				tableDanhSachKhachHang.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+			else
+				tableDanhSachKhachHang.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
 		}
 
 		tableDanhSachKhachHang.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -166,13 +166,12 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 
 		btnXoa.setText("Xóa");
 		btnXoa.setFocusable(false);
-		btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnXoa.setForeground(new Color(240, 240, 240));
+		btnXoa.setOpaque(false);
+		btnXoa.setContentAreaFilled(false);
+		btnXoa.setBorderPainted(false);
+		btnXoa.setFocusable(false);
 		btnXoa.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		btnXoa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				btnXoaActionPerformed();
-			}
-		});
 
 		txtTimKiem.addKeyListener(this);
 
@@ -347,7 +346,8 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
 				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
 		if (!(sdt.matches(pattern))) {
-			JOptionPane.showInternalMessageDialog(this, "Số điện thoại phải có 10 số và bắt đầu bằng các đầu số của nhà mạng Việt Nam!\n Ví dụ: 0366497865");
+			JOptionPane.showInternalMessageDialog(this,
+					"Số điện thoại phải có 10 số và bắt đầu bằng các đầu số của nhà mạng Việt Nam!\n Ví dụ: 0366497865");
 			txtSDT.requestFocus();
 			txtSDT.selectAll();
 			return false;
@@ -363,13 +363,14 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 			JOptionPane.showMessageDialog(null, "Vui lòng chọn khách hàng muốn cập nhật thông tin!");
 			return;
 		} else {
-			
+
 			KhachHang kh = null;
 			if (regex()) {
 				kh = getKhachHang();
 			}
-			
-			int t1 = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn cập nhật lại thông tin của khách hàng này?", "Cập nhật thông tin", JOptionPane.YES_NO_OPTION);
+
+			int t1 = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn cập nhật lại thông tin của khách hàng này?",
+					"Cập nhật thông tin", JOptionPane.YES_NO_OPTION);
 			if (t1 == JOptionPane.YES_OPTION && kh != null) {
 				boolean isUpdated = false;
 				try {
@@ -383,7 +384,7 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 				}
 			}
 		}
-		
+
 		tableDanhSachKhachHang.clearSelection();
 	}
 
@@ -490,18 +491,17 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 			txtSDT.selectAll();
 			return false;
 		}
-		
+
 		List<KhachHang> list = customerFacade.getCustomers();
 		for (KhachHang kh : list) {
-			if (kh.getSoDienThoaiKH().equals(sdt)
-					&& !kh.getMaKhachHang().equals(txtMaKhachHang.getText().trim())) {
+			if (kh.getSoDienThoaiKH().equals(sdt) && !kh.getMaKhachHang().equals(txtMaKhachHang.getText().trim())) {
 				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác");
 				txtSDT.selectAll();
 				txtSDT.requestFocus();
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 

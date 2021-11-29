@@ -72,7 +72,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private JTextField txtHoTen;
 	private JTextField txtMaNhanVien;
 	private JPasswordField txtMatKhau;
-	private JTextField txtNgaySinh;
 	private JTextField txtSDT;
 	private JTextField txtTimKiem;
 
@@ -118,7 +117,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		jLabel6 = new JLabel();
 		jLabel7 = new JLabel();
 		txtMatKhau = new JPasswordField();
-		txtNgaySinh = new JTextField();
 		jLabel2 = new JLabel();
 		txtSDT = new JTextField();
 		chkNu = new JCheckBox();
@@ -143,7 +141,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		txtHoTen.setFont(new Font("SansSerif", Font.PLAIN, 19));
 		txtMaNhanVien.setFont(new Font("SansSerif", Font.PLAIN, 19));
 		txtMatKhau.setFont(new Font("SansSerif", Font.PLAIN, 19));
-		txtNgaySinh.setFont(new Font("SansSerif", Font.PLAIN, 19));
 		txtTimKiem.setFont(new Font("SansSerif", Font.PLAIN, 18));
 		txtTimKiem.addKeyListener(this);
 
@@ -171,8 +168,14 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
+		leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 		for (int i = 0; i < tableDanhSachNhanVien.getColumnCount(); ++i) {
-			tableDanhSachNhanVien.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+			if(i == 1 || i == 3)
+				tableDanhSachNhanVien.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
+			else
+				tableDanhSachNhanVien.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
 
 		tableDanhSachNhanVien.getColumnModel().getColumn(0).setPreferredWidth(10);
@@ -208,13 +211,12 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		});
 
 		btnXoa.setText("Xóa");
-		btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		btnXoa.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		btnXoa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				btnXoaActionPerformed(evt);
-			}
-		});
+		btnXoa.setForeground(new Color(240,240,240));
+		btnXoa.setOpaque(false);
+		btnXoa.setContentAreaFilled(false);
+		btnXoa.setBorderPainted(false);
+		btnXoa.setFocusable(false);
 
 		jLabel8.setFont(new Font("SansSerif", 0, 18));
 		jLabel8.setText("Địa chỉ");
@@ -374,12 +376,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		datHanhDongChoTxtDiaChi();
 		datHanhDongChoTxtSDT();
 		datHanhDongChopfMatKhau();
-
-	}
-
-	private void btnXoaActionPerformed(ActionEvent evt) {
-		xoa();
-		tableDanhSachNhanVien.clearSelection();
 	}
 
 	private void btnThemActionPerformed(ActionEvent evt) {
@@ -424,6 +420,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && ngaySinh != null)) {
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các trường thông tin!");
+			dpNgaySinh.openPopup();
 		}
 
 		if (!(maNV.length() > 0)) {
@@ -542,35 +539,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 			emps.put(emp.getMaNhanVien(), emp);
 		});
-	}
-
-	private void xoa() {
-		int row = tableDanhSachNhanVien.getSelectedRow();
-		if (row == -1) {
-			JOptionPane.showMessageDialog(null, "Chọn dòng cần xóa!");
-			return;
-		} else {
-			int t = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa nhân viên này?", "Xác nhận",
-					JOptionPane.YES_NO_OPTION);
-			if (t == JOptionPane.YES_OPTION) {
-				String maNV = tableDanhSachNhanVien.getValueAt(row, 0).toString();
-				if (nvlogin.getMaNhanVien().equals(maNV)) {
-					JOptionPane.showMessageDialog(this, "Nhân viên hiện đang sử dụng chương trình, không thể xóa!");
-					return;
-				}
-
-				try {
-					if (employeeFacade.removeEmployeeByID(maNV)) {
-						row = tableDanhSachNhanVien.convertRowIndexToModel(row);
-						model.removeRow(row);
-					}
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-
-				loadEmployeesData();
-			}
-		}
 	}
 
 	@SuppressWarnings("deprecation")
