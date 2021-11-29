@@ -37,11 +37,13 @@ import javax.swing.table.TableRowSorter;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.optionalusertools.DateChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateChangeEvent;
 
 import entity.LinhKien;
 import facade.IComponentFacade;
 
-public class PanelDanhSachSanPham extends JPanel implements MouseListener, ActionListener, KeyListener {
+public class PanelDanhSachSanPham extends JPanel implements MouseListener, ActionListener, KeyListener, DateChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -116,6 +118,8 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		dpNgayNhap = new DatePicker(dateSettings);
 		dpNgayNhap.setFocusable(false);
 		dpNgayNhap.setDateToToday();
+		
+		dpNgayNhap.addDateChangeListener(this);
 
 		txtTenSanPham = new JTextField();
 		txtTenSanPham.setFont(new Font("SansSerif", 0, 14));
@@ -456,27 +460,6 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		loadProductsData();
 	}
 
-//	private void btnXoaActionPerformed() {
-//		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa?", "Xác nhận",
-//				JOptionPane.YES_NO_OPTION);
-//
-//		if (confirm == 0) {
-//
-//			while (tableDanhSachSanPham.getSelectedRowCount() != 0) {
-//				int selectedRow = tableDanhSachSanPham.getSelectedRow();
-//				String maLK = tableDanhSachSanPham.getValueAt(selectedRow, 0).toString();
-//				try {
-//					if (componentFacade.removeComponentByID(maLK)) {
-//						selectedRow = tableDanhSachSanPham.convertRowIndexToModel(selectedRow);
-//						model.removeRow(selectedRow);
-//					}
-//				} catch (RemoteException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//	}
-
 	private void loadProductsData() {
 		model.getDataVector().removeAllElements();
 		List<LinhKien> compList = null;
@@ -652,5 +635,13 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 
 	private String currencyFormat(double donGia) {
 		return new DecimalFormat("#,###").format(donGia);
+	}
+
+	@Override
+	public void dateChanged(DateChangeEvent event) {
+		if(dpNgayNhap.getDate().isAfter(LocalDate.now())) {
+			dpNgayNhap.closePopup();
+			showMsg("Ngày nhập hàng phải trước hoặc là ngày hôm nay!");
+		}
 	}
 }

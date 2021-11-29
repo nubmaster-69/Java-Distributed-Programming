@@ -40,11 +40,13 @@ import javax.swing.table.TableRowSorter;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.optionalusertools.DateChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateChangeEvent;
 
 import entity.NhanVien;
 import facade.IEmployeeFacade;
 
-public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyListener {
+public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyListener, DateChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -133,6 +135,8 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		dpNgaySinh.setFocusable(false);
 		dpNgaySinh.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+		dpNgaySinh.addDateChangeListener(this);
+		
 		cmbBoxQuyenDangNhap.setFont(new Font("SansSerif", 0, 14));
 		cmbBoxQuyenDangNhap.setFocusable(false);
 
@@ -420,7 +424,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && ngaySinh != null)) {
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các trường thông tin!");
-//			dpNgaySinh.openPopup();
 		}
 
 		if (!(maNV.length() > 0)) {
@@ -489,14 +492,12 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (ngaySinh.isAfter(LocalDate.now())) {
-			
 			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại!\nVui lòng chọn lại");
 			dpNgaySinh.openPopup();
 			return false;
 		}
 
 		if (tinhTuoi(ngaySinh) < 18) {
-			
 			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (tuổi phải từ 18 trở lên)!\nVui lòng chọn lại");
 			dpNgaySinh.openPopup();
 			return false;
@@ -740,5 +741,29 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
 			}
 		});
+	}
+
+	private boolean checkDateOfBirth() {
+		LocalDate ngaySinh = dpNgaySinh.getDate();
+		
+		if (ngaySinh.isAfter(LocalDate.now())) {
+			dpNgaySinh.closePopup();
+			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại!\nVui lòng chọn lại!");
+			return false;
+		}
+
+		if (tinhTuoi(ngaySinh) < 18) {
+			dpNgaySinh.closePopup();
+			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (tuổi phải từ 18 trở lên)!\nVui lòng chọn lại!");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public void dateChanged(DateChangeEvent event) {
+		if(checkDateOfBirth())
+			txtSDT.requestFocus();
 	}
 }

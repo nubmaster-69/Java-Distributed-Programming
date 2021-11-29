@@ -100,8 +100,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 	private Map<String, LinhKien> items = new HashMap<>();
 	private Map<String, Integer> orderItems = new HashMap<>();
 
-	
-
 	public PanelHangCoSan(NhanVien nv) {
 
 		try {
@@ -429,16 +427,17 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			return;
 
 		if (khachHang == null) {
-			
+
 			try {
-				if (!ktraSDT()) return;
-					long maKhachHang = 0;
-					maKhachHang = Long.parseLong(customerFacade.getLastCustomerID());
-					maKhachHang++;
-					khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(),
-							txtSDT.getText().trim(), txtDiaChi.getText().trim());
-					customerFacade.addCustomer(khachHang);
-				
+				if (!ktraSDT())
+					return;
+				long maKhachHang = 0;
+				maKhachHang = Long.parseLong(customerFacade.getLastCustomerID());
+				maKhachHang++;
+				khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(),
+						txtSDT.getText().trim(), txtDiaChi.getText().trim());
+				customerFacade.addCustomer(khachHang);
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -561,15 +560,6 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				return false;
 			}
 		}
-//		List<NhanVien> list = employeeFacade.getEmployees();
-//		for (NhanVien nhanVien : list) {
-//			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
-//				JOptionPane.showMessageDialog(this, "SDT trùng");
-//				txtSDT.selectAll();
-//				txtSDT.requestFocus();
-//				return false;
-//			}
-//		}
 
 		if (diaChi.trim().equals("")) {
 			showMsg("Địa chỉ không được trống !");
@@ -637,8 +627,18 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		else if (o.equals(btnLamMoi))
 			btnLamMoiActionPerformed();
 		else if (o.equals(txtTienKhachDua)) {
-			if (tinhTienThoi())
-				txtTienKhachDua.setText(df.format(Double.parseDouble(txtTienKhachDua.getText().trim())));
+			if (tinhTienThoi()) {
+				String tienKT = txtTienKhachDua.getText().trim().replaceAll("[^0-9]", "");
+
+				if (tienKT.isEmpty()) {
+					showMsg("Tiền khách đưa không hợp lệ! Vui lòng kiểm tra lại!");
+					txtTienKhachDua.requestFocus();
+					return;
+				}
+
+				txtTienKhachDua.setText(
+						df.format(Double.parseDouble(txtTienKhachDua.getText().trim().replaceAll("[^0-9]", ""))));
+			}
 		}
 	}
 
@@ -647,7 +647,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		int soLuongMH = modelTaoDonHang.getRowCount();
 
 		for (int i = 0; i < soLuongMH; i++) {
-			tongTien += Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
+			tongTien += Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replaceAll("[^0-9]", ""));
 		}
 
 		return tongTien;
@@ -658,13 +658,16 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			String tienKT = txtTienKhachDua.getText().trim();
 
 			if (tienKT.isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ");
+				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ!");
 				txtTienKhachDua.selectAll();
 				txtTienKhachDua.requestFocus();
 				return false;
 			}
 
-			tienKT = tienKT.replace(",", "");
+			tienKT = tienKT.replaceAll("[^0-9]", "");
+
+			if (tienKT.isEmpty())
+				tienKT = "-1";
 
 			double tienKhachTra = 0;
 			double tongTien = tongTien();
@@ -678,13 +681,17 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				return false;
 			}
 
-			if (tienKT.matches("^\\d+$") && tienKhachTra >= tongTien) {
-				txtTienThoi.setText(df.format(tienKhachTra - tongTien));
-			} else {
-				JOptionPane.showMessageDialog(this, "Số tiền trả Không đủ");
-				txtTienKhachDua.selectAll();
-				txtTienKhachDua.requestFocus();
-				return false;
+			if (tienKT.matches("^\\d+$")) {
+				if (tienKhachTra >= tongTien) {
+					txtTienThoi.setText(df.format(tienKhachTra - tongTien));
+				} else {
+					txtTienKhachDua.setText(
+							df.format(Double.parseDouble(txtTienKhachDua.getText().trim().replaceAll("[^0-9]", ""))));
+					JOptionPane.showMessageDialog(this, "Số tiền khách trả Không đủ! Vui lòng kiểm tra lại!");
+					txtTienKhachDua.selectAll();
+					txtTienKhachDua.requestFocus();
+					return false;
+				}
 			}
 		}
 		return true;
@@ -734,7 +741,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 						txtHoTen.setText(khachHang.getHoTenKH());
 					} else {
 						JOptionPane.showMessageDialog(this,
-								"Số điện thoại không tồn tại!\nVui lòng thêm khách hàng mới.");
+								"Số điện thoại không tồn tại!\nVui lòng thêm khách hàng mới!");
 						txtDiaChi.setText("");
 						txtHoTen.setText("");
 					}
@@ -785,7 +792,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 					orderItems.put(compID,
 							orderItems.containsKey(compID) ? orderItems.get(compID) + quantity : quantity);
 					double tongTienSP = Double
-							.parseDouble(tableHangCoSan.getValueAt(row, 3).toString().replace(",", ""));
+							.parseDouble(tableHangCoSan.getValueAt(row, 3).toString().replaceAll("[^0-9]", ""));
 					Thread addItemThread = new Thread(() -> {
 						modelTaoDonHang.addRow(new Object[] { tableHangCoSan.getValueAt(row, 0),
 								tableHangCoSan.getValueAt(row, 1), tableHangCoSan.getValueAt(row, 2),
@@ -827,7 +834,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				orderItems.remove(tableDonHang.getValueAt(row, 0).toString());
 				modelTaoDonHang.removeRow(row);
 			}
-			
+
 			updateTableDonHang();
 		}
 	}
@@ -873,7 +880,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 				int soLuongHienTai = Integer.valueOf(tableHangCoSan.getValueAt(findRowByValue(maLK), 4).toString());
 				double tongTienSP = Double
-						.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(",", ""));
+						.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replaceAll("[^0-9]", ""));
 				if (soLuongDat > soLuongHienTai) {
 					showMsg(String.format("Sản phẩm này chỉ có %s mặt hàng, không thể đặt quá số lượng trên!",
 							soLuongHienTai));
@@ -902,7 +909,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			String maLK = tableDonHang.getValueAt(i, 0).toString();
 			int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
 			double tongTienSP = Double
-					.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(",", ""));
+					.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replaceAll("[^0-9]", ""));
 			tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
 		}
 

@@ -403,7 +403,8 @@ public class PanelThongKe extends JPanel implements ActionListener {
 	}
 
 	private void btnXuatFileDoanhThuActionPerformed(ActionEvent evt) {
-		capNhatTongTienThongKe(modelDoanhThu, -1, txtDoanhThu.getText().replace("VNĐ", ""));
+		if(modelDoanhThu.getRowCount() > 0)
+			capNhatTongTienThongKe(modelDoanhThu, -1, txtDoanhThu.getText().replace("VNĐ", ""));
 		export(tblDoanhThu, "ThongKeDoanhThu", "Thống kê doanh thu");
 	}
 
@@ -412,7 +413,8 @@ public class PanelThongKe extends JPanel implements ActionListener {
 	}
 
 	private void btnXuatFileSPActionPerformed(ActionEvent evt) {
-		capNhatTongTienThongKe(modelSPBanChay, count(modelSPBanChay), txtTongTienBanChay.getText().replace("VNĐ", ""));
+		if(modelSPBanChay.getRowCount() > 0)
+			capNhatTongTienThongKe(modelSPBanChay, count(modelSPBanChay), txtTongTienBanChay.getText().replace("VNĐ", ""));
 		export(tblSPBanChay, "ThongKeSanPhamBanChay", "Thống kê sản phẩm bán chạy");
 	}
 
