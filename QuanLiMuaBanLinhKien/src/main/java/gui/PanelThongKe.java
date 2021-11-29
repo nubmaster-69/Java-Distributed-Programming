@@ -5,6 +5,18 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
 import java.rmi.Naming;
 
 import javax.swing.GroupLayout;
@@ -25,10 +37,17 @@ import javax.swing.table.DefaultTableModel;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.optionalusertools.DateChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateChangeEvent;
 
+import entity.HoaDon;
+import entity.KhachHang;
+import entity.LinhKien;
+import facade.IComponentFacade;
+import facade.ICustomerFacade;
+import facade.IOrderFacade;
 import facade.IUtilityFacade;
-
-public class PanelThongKe extends JPanel {
+public class PanelThongKe extends JPanel implements ActionListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -72,6 +91,11 @@ public class PanelThongKe extends JPanel {
 	private JTextField txtDoanhThu;
 	private JTextField txtTongTienBanChay;
 
+	private DecimalFormat df;
+
+	private IComponentFacade componentFacade;
+	private ICustomerFacade customerFacade;
+	private IOrderFacade orderFacade;
 	private IUtilityFacade utilityFacade = null;
 	private JFileChooser fileChooser = null;
 
@@ -82,6 +106,8 @@ public class PanelThongKe extends JPanel {
 			e.printStackTrace();
 		}
 		initComponents();
+		initDaoAndData();
+		addAction();
 	}
 
 	private void initComponents() {
@@ -369,14 +395,6 @@ public class PanelThongKe extends JPanel {
 								.addGap(18, 18, 18)))
 				.addComponent(TPThongKe, GroupLayout.PREFERRED_SIZE, 494, GroupLayout.PREFERRED_SIZE)
 				.addContainerGap()));
-
-		//------ Đoạn này dùng để test, nhớ xóa
-		modelSPBanChay.addRow(new Object[] { "Tét", "Tính năng", "Xuất", "File Excel", "neft" });
-
-		capNhatTongTienThongKe(modelSPBanChay, 12, 123.535);
-		capNhatTongTienThongKe(modelKHTiemNang, 12, 123.535);
-		capNhatTongTienThongKe(modelDoanhThu, -1, 123.535);
-		//------
 	}
 
 	private void btnXuatFileDoanhThuActionPerformed(ActionEvent evt) {
@@ -388,6 +406,7 @@ public class PanelThongKe extends JPanel {
 	}
 
 	private void btnXuatFileSPActionPerformed(ActionEvent evt) {
+		capNhatTongTienThongKe(modelSPBanChay,count(modelSPBanChay),txtTongTienBanChay.getText());
 		export(tblSPBanChay, "ThongKeSanPhamBanChay", "Thống kê sản phẩm bán chạy");
 	}
 
@@ -400,7 +419,7 @@ public class PanelThongKe extends JPanel {
 	 * @param soLuong:  nếu số lượng == -1 sẽ không gán trường này
 	 * @param tongTien: tổng tiền
 	 */
-	private void capNhatTongTienThongKe(DefaultTableModel model, int soLuong, double tongTien) {
+	private void capNhatTongTienThongKe(DefaultTableModel model, int soLuong, String tongTien) {
 		int len = model.getColumnCount();
 
 		Object[] o = " ".repeat(len).split("");
@@ -442,5 +461,236 @@ public class PanelThongKe extends JPanel {
 
 	private void showMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg);
+	}
+	
+	private int count(DefaultTableModel model) {
+		int tong = 0;
+		int col = 0;
+		if(model.equals(modelSPBanChay)) {
+			col = 3;
+		}else if(model.equals(modelSPBanCham)) {
+			col = 3;
+		}
+		for(int i = 0;i < model.getRowCount(); i++) {
+			tong += (int)model.getValueAt(i, col);
+		}
+		return tong;
+	}
+
+	private void initDaoAndData() {
+		df = new DecimalFormat("#,###");
+		try {
+			componentFacade = (IComponentFacade) Naming.lookup("rmi://localhost:1341/componentFacade");
+			customerFacade = (ICustomerFacade) Naming.lookup("rmi://localhost:1341/customerFacade");
+			orderFacade = (IOrderFacade)Naming.lookup("rmi://localhost:1341/orderFacade");
+			addRowIntab0();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public void removeData(JTable table) {
+		((DefaultTableModel) table.getModel()).setRowCount(0);
+	}
+
+	private void addRowIntab0() throws RemoteException {
+
+		if (!checkDate()) {
+			return;
+		}
+
+		Map<LinhKien, Integer> map = componentFacade.getComponentsBestSelling(dpNgayBatDau.getDate(),
+				dpNgayKetThuc.getDate());
+		removeData(tblSPBanChay);
+		double tong = 0;
+		for (Map.Entry<LinhKien, Integer> entry : map.entrySet()) {
+			LinhKien lk = entry.getKey();
+			int sl = entry.getValue();
+			modelSPBanChay.addRow(lk.convertToRowTableInGDThongKe(sl));
+			tong += lk.getDonGia() * sl;
+		}
+
+		txtTongTienBanChay.setText(df.format(tong) + " VNĐ");
+	}
+	
+	private void addRowIntab1() throws RemoteException {
+
+		if (!checkDate()) {
+			return;
+		}
+
+		Map<LinhKien, Integer> map = componentFacade.getComponentsWorstSelling(dpNgayBatDau.getDate(),
+				dpNgayKetThuc.getDate());
+		removeData(tblSPBanCham);
+		for (Map.Entry<LinhKien, Integer> entry : map.entrySet()) {
+			LinhKien lk = entry.getKey();
+			int sl = entry.getValue();
+			modelSPBanCham.addRow(lk.convertToRowTableInGDThongKeWorst(sl));
+		}
+
+	}
+
+	private void addRowIntab3() throws RemoteException {
+
+		if (!checkDate()) {
+			return;
+		}
+
+		List<HoaDon> list = orderFacade.getBillsByDate(dpNgayBatDau.getDate(),dpNgayKetThuc.getDate());
+		removeData(tblDoanhThu);
+		double tong = 0;
+		for (HoaDon hoaDon : list) {
+			modelDoanhThu.addRow(hoaDon.convertToRowTableInGDThongKe());
+			tong += hoaDon.tongTienHoaDon();
+		}
+
+		txtDoanhThu.setText(df.format(tong) + " VNĐ");
+	}
+
+	private void addRowIntab2() throws RemoteException {
+		if (!checkDate()) {
+			return;
+		}
+		removeData(tblKHTiemNang);
+		Map<KhachHang, List<HoaDon>> map = customerFacade.getCustomersPotential(dpNgayBatDau.getDate(),
+				dpNgayKetThuc.getDate());
+
+		for (Map.Entry<KhachHang, List<HoaDon>> entry : map.entrySet()) {
+			KhachHang kh = entry.getKey();
+			List<HoaDon> listHD = entry.getValue();
+			modelKHTiemNang.addRow(kh.convertToRowTableInGDThongKe(listHD));
+		}
+	}
+
+	private Boolean checkDate() {
+		if (dpNgayBatDau.getDate() == null || dpNgayKetThuc.getDate() == null) {
+			return false;
+		}
+		return true;
+	}
+
+	private void switchAndChangeEvent() {
+		switch (TPThongKe.getSelectedIndex()) {
+		case 0:
+			try {
+				addRowIntab0();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			break;
+		case 2:
+			try {
+				addRowIntab2();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			break;
+		case 3:
+			try {
+				addRowIntab3();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			break;
+		case 1:
+			try {
+				addRowIntab1();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addAction() {
+		TPThongKe.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				switchAndChangeEvent();
+			}
+		});
+
+		dpNgayBatDau.addDateChangeListener(new createDateChange());
+		dpNgayKetThuc.addDateChangeListener(new createDateChange());
+	}
+
+	private class createDateChange implements DateChangeListener {
+		@Override
+		public void dateChanged(DateChangeEvent event) {
+			switchAndChangeEvent();
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object obj = e.getSource();
+		if (obj.equals(dpNgayBatDau) || obj.equals(dpNgayKetThuc) && TPThongKe.getSelectedIndex() == 0) {
+			try {
+				addRowIntab0();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		Object obj = e.getSource();
+		if (obj.equals(dpNgayBatDau) || obj.equals(dpNgayKetThuc)) {
+//			switch (TPThongKe.getSelectedIndex()) {
+//			case 0:
+//				try {
+//					addRowIntab0();
+//				} catch (RemoteException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//				break;
+//			default:
+//				break;
+//			}
+			System.out.println("here");
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+
 	}
 }

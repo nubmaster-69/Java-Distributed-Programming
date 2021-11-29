@@ -1,10 +1,12 @@
 package entity;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,8 +27,7 @@ public class HoaDon implements Serializable {
 	@JoinColumn(name = "maKhachHang")
 	private KhachHang maKhachHang;
 	private LocalDate ngayLapHoaDon;
-
-	@OneToMany(mappedBy = "maHoaDon")
+	@OneToMany(mappedBy = "maHoaDon",fetch = FetchType.EAGER)
 	private List<ChiTietHoaDon> chiTietHoaDon;
 
 	public HoaDon() {
@@ -72,11 +73,36 @@ public class HoaDon implements Serializable {
 	public void setNgayLapHoaDon(LocalDate ngayLapHoaDon) {
 		this.ngayLapHoaDon = ngayLapHoaDon;
 	}
+	
+	
+	public List<ChiTietHoaDon> getChiTietHoaDon() {
+		return chiTietHoaDon;
+	}
+
+	public void setChiTietHoaDon(List<ChiTietHoaDon> chiTietHoaDon) {
+		this.chiTietHoaDon = chiTietHoaDon;
+	}
+
+	public double tongTienHoaDon() {
+		double tongTien = 0;
+		
+		for (int i = 0; i< chiTietHoaDon.size(); i++) {
+			tongTien += chiTietHoaDon.get(i).getSoLuong() * chiTietHoaDon.get(i).getMaLinhKien().getDonGia();
+		}
+		
+		return tongTien;
+	}
 
 	@Override
 	public String toString() {
 		return "HoaDon [maHoaDon=" + maHoaDon + ", maNhanVien=" + maNhanVien + ", maKhachHang=" + maKhachHang
-				+ ", ngayLapHoaDon=" + ngayLapHoaDon + "]";
+				+ ", ngayLapHoaDon=" + ngayLapHoaDon +"chi tiet = "+ "]";
+	}
+	
+	public Object[] convertToRowTableInGDThongKe() {
+		DecimalFormat df = new DecimalFormat("#,###");
+		return new Object[]{maKhachHang.getHoTenKH(),maNhanVien.getHoTenNV(),ngayLapHoaDon,df.format(tongTienHoaDon()) + " VNĐ"
+		};
 	}
 
 }

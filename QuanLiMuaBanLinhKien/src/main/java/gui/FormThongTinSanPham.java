@@ -11,6 +11,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -312,7 +313,7 @@ public class FormThongTinSanPham extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 		setResizable(false);
-
+		dpNgayNhap.setEnabled(false);
 		loadCompInfo();
 	}
 
@@ -364,13 +365,110 @@ public class FormThongTinSanPham extends JFrame {
 	}
 
 	private boolean updateEvent() throws RemoteException, MalformedURLException, NotBoundException {
-		linhKien.setSoLuongTon(linhKien.getSoLuongTon() - 1);
-		
-		IComponentFacade componentFacade = (IComponentFacade) Naming.lookup("rmi://localhost:1341/componentFacade");
-		
-		boolean res = componentFacade.updateComponentByID(linhKien); 
-		
-		return res; 
+		if(validateData("check")) {
+			linhKien.setSoLuongTon(Integer.parseInt(txtSoLuongTon.getText()));
+			linhKien.setDonGia(Double.parseDouble(txtDonGia.getText().trim().replace(".", "").replace(",", "")));
+			IComponentFacade componentFacade = (IComponentFacade) Naming.lookup("rmi://localhost:1341/componentFacade");
+			
+			boolean res = componentFacade.updateComponentByID(linhKien); 
+			
+			return res;
+		}
+		return false;
+	}
+	
+	private boolean validateData(String checkMa) {
+		if (checkMa.equals("check")) {
+
+			String ten = txtTenLK.getText().trim();
+			String loai = txtLoaiLK.getText();
+			String thuonghieu = txtThuongHieu.getText().trim();
+
+			if (ten.equals("")) {
+				showMsg("Tên sản phẩm không được trống!");
+				txtTenLK.selectAll();
+				txtTenLK.requestFocus();
+				return false;
+			}
+
+			try {
+				double gia = Double.parseDouble(txtDonGia.getText().trim().replace(".", "").replace(",", ""));
+				if (gia < 0) {
+					showMsg("Giá không được bé hơn 0!");
+					txtDonGia.selectAll();
+					txtDonGia.requestFocus();
+					return false;
+				}
+			} catch (Exception e) {
+				showMsg("Giá phải là số!");
+				txtDonGia.selectAll();
+				txtDonGia.requestFocus();
+				return false;
+			}
+
+			if (thuonghieu.equals("")) {
+				showMsg("Thương hiệu không được trống!");
+				txtThuongHieu.selectAll();
+				txtThuongHieu.requestFocus();
+				return false;
+			}
+
+			if (loai.equals("")) {
+				showMsg("Loại linh kiện không được trống!");
+				txtLoaiLK.selectAll();
+				txtLoaiLK.requestFocus();
+				return false;
+			}
+
+			try {
+				int soluong = Integer.parseInt(txtSoLuongTon.getText().trim());
+				if (soluong < 0) {
+					showMsg("Số lượng không được bé hơn 0!");
+					txtSoLuongTon.selectAll();
+					txtSoLuongTon.requestFocus();
+					return false;
+				}
+			} catch (Exception e) {
+				showMsg("Số lượng phải là số!");
+				txtSoLuongTon.selectAll();
+				txtSoLuongTon.requestFocus();
+				return false;
+			}
+
+			LocalDate ngayNhap = dpNgayNhap.getDate();
+
+			if (ngayNhap == null || dpNgayNhap == null) {
+				showMsg("Vui lòng chọn ngày nhập!");
+				dpNgayNhap.requestFocus();
+				return false;
+			}
+			
+			if(ngayNhap.isAfter(LocalDate.now())) {
+				showMsg("Ngày nhập hàng phải trước hoặc là ngày hôm nay!");
+				dpNgayNhap.requestFocus();
+				return false;
+			}
+
+			try {
+				int bh = Integer.parseInt(txtBaoHanh.getText());
+				if (bh < 0) {
+					showMsg("Thời gian bảo hành không được bé hơn 0!");
+					txtBaoHanh.selectAll();
+					txtBaoHanh.requestFocus();
+					return false;
+				}
+			} catch (Exception e) {
+				showMsg("Thời gian bảo hành phải là số!");
+				txtBaoHanh.selectAll();
+				txtBaoHanh.requestFocus();
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void showMsg(String msg) {
+		JOptionPane.showMessageDialog(null, msg);
 	}
 
 	public JButton getBtnUpdate() {

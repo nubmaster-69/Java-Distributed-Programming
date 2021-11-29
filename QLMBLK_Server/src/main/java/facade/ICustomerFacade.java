@@ -2,8 +2,11 @@ package facade;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
+import entity.HoaDon;
 import entity.KhachHang;
 
 public interface ICustomerFacade extends Remote {
@@ -22,4 +25,6 @@ public interface ICustomerFacade extends Remote {
 	boolean removeCustomerByID(String maKH) throws RemoteException;
 
 	boolean updateCustomerInfo(KhachHang kh) throws RemoteException;
+	
+	Map<KhachHang,List<HoaDon>> getCustomersPotential(LocalDate fromDate, LocalDate toDate) throws RemoteException;
 }
