@@ -5,10 +5,8 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -16,8 +14,6 @@ import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
-
-import java.rmi.Naming;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -47,7 +43,8 @@ import facade.IComponentFacade;
 import facade.ICustomerFacade;
 import facade.IOrderFacade;
 import facade.IUtilityFacade;
-public class PanelThongKe extends JPanel implements ActionListener, MouseListener {
+
+public class PanelThongKe extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -105,6 +102,7 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		initComponents();
 		initDaoAndData();
 		addAction();
@@ -118,7 +116,10 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 		TPThongKe = new JTabbedPane();
 		pnlSPBanChay = new JPanel();
 		btnXuatFileSP = new JButton();
+		
 		txtTongTienBanChay = new JTextField();
+		txtTongTienBanChay.setEditable(false);
+		
 		lblTongTienSanPham = new JLabel();
 		jScrollPane1 = new JScrollPane();
 		tblSPBanChay = new JTable();
@@ -131,7 +132,10 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 		tblKHTiemNang = new JTable();
 		pnlDoanhThu = new JPanel();
 		lblTongDoanhThu = new JLabel();
+		
 		txtDoanhThu = new JTextField();
+		txtDoanhThu.setEditable(false);
+		
 		btnXuatFileDoanhThu = new JButton();
 		jScrollPane3 = new JScrollPane();
 		tblDoanhThu = new JTable();
@@ -375,18 +379,19 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 								.addComponent(lblNgayBKTTK, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(dpNgayKetThuc,
 										GroupLayout.PREFERRED_SIZE, 230, GroupLayout.PREFERRED_SIZE)))
-				.addContainerGap()).addGroup(GroupLayout.Alignment.TRAILING,
-						layout.createSequentialGroup().addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(lblTieuDe).addGap(357, 357, 357)));
+				.addContainerGap())
+				.addGroup(layout.createSequentialGroup().addGap(394, 394, 394).addComponent(lblTieuDe)
+						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
 				.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
-						.createSequentialGroup().addContainerGap().addComponent(lblTieuDe).addGap(20, 20, 20)
+						.createSequentialGroup().addGap(68, 68, 68)
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 								.addComponent(dpNgayKetThuc, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 								.addComponent(lblNgayBKTTK, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
 						.addGap(18, 18, 18))
-						.addGroup(layout.createSequentialGroup().addContainerGap(76, Short.MAX_VALUE)
+						.addGroup(layout.createSequentialGroup().addContainerGap().addComponent(lblTieuDe)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 										.addComponent(dpNgayBatDau, GroupLayout.PREFERRED_SIZE, 30,
 												GroupLayout.PREFERRED_SIZE)
@@ -398,6 +403,7 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 	}
 
 	private void btnXuatFileDoanhThuActionPerformed(ActionEvent evt) {
+		capNhatTongTienThongKe(modelDoanhThu, -1, txtDoanhThu.getText().replace("VNĐ", ""));
 		export(tblDoanhThu, "ThongKeDoanhThu", "Thống kê doanh thu");
 	}
 
@@ -406,7 +412,7 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 	}
 
 	private void btnXuatFileSPActionPerformed(ActionEvent evt) {
-		capNhatTongTienThongKe(modelSPBanChay,count(modelSPBanChay),txtTongTienBanChay.getText());
+		capNhatTongTienThongKe(modelSPBanChay, count(modelSPBanChay), txtTongTienBanChay.getText().replace("VNĐ", ""));
 		export(tblSPBanChay, "ThongKeSanPhamBanChay", "Thống kê sản phẩm bán chạy");
 	}
 
@@ -462,17 +468,17 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 	private void showMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg);
 	}
-	
+
 	private int count(DefaultTableModel model) {
 		int tong = 0;
 		int col = 0;
-		if(model.equals(modelSPBanChay)) {
+		if (model.equals(modelSPBanChay)) {
 			col = 3;
-		}else if(model.equals(modelSPBanCham)) {
+		} else if (model.equals(modelSPBanCham)) {
 			col = 3;
 		}
-		for(int i = 0;i < model.getRowCount(); i++) {
-			tong += (int)model.getValueAt(i, col);
+		for (int i = 0; i < model.getRowCount(); i++) {
+			tong += (int) model.getValueAt(i, col);
 		}
 		return tong;
 	}
@@ -482,19 +488,15 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 		try {
 			componentFacade = (IComponentFacade) Naming.lookup("rmi://localhost:1341/componentFacade");
 			customerFacade = (ICustomerFacade) Naming.lookup("rmi://localhost:1341/customerFacade");
-			orderFacade = (IOrderFacade)Naming.lookup("rmi://localhost:1341/orderFacade");
+			orderFacade = (IOrderFacade) Naming.lookup("rmi://localhost:1341/orderFacade");
 			addRowIntab0();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	public void removeData(JTable table) {
@@ -502,14 +504,15 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 	}
 
 	private void addRowIntab0() throws RemoteException {
-
 		if (!checkDate()) {
 			return;
 		}
 
 		Map<LinhKien, Integer> map = componentFacade.getComponentsBestSelling(dpNgayBatDau.getDate(),
 				dpNgayKetThuc.getDate());
+
 		removeData(tblSPBanChay);
+
 		double tong = 0;
 		for (Map.Entry<LinhKien, Integer> entry : map.entrySet()) {
 			LinhKien lk = entry.getKey();
@@ -520,7 +523,7 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 
 		txtTongTienBanChay.setText(df.format(tong) + " VNĐ");
 	}
-	
+
 	private void addRowIntab1() throws RemoteException {
 
 		if (!checkDate()) {
@@ -539,12 +542,11 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 	}
 
 	private void addRowIntab3() throws RemoteException {
-
 		if (!checkDate()) {
 			return;
 		}
 
-		List<HoaDon> list = orderFacade.getBillsByDate(dpNgayBatDau.getDate(),dpNgayKetThuc.getDate());
+		List<HoaDon> list = orderFacade.getBillsByDate(dpNgayBatDau.getDate(), dpNgayKetThuc.getDate());
 		removeData(tblDoanhThu);
 		double tong = 0;
 		for (HoaDon hoaDon : list) {
@@ -583,7 +585,6 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 			try {
 				addRowIntab0();
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			break;
@@ -591,7 +592,6 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 			try {
 				addRowIntab2();
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			break;
@@ -599,7 +599,6 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 			try {
 				addRowIntab3();
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			break;
@@ -607,7 +606,6 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 			try {
 				addRowIntab1();
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			break;
@@ -642,55 +640,8 @@ public class PanelThongKe extends JPanel implements ActionListener, MouseListene
 			try {
 				addRowIntab0();
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
-
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		Object obj = e.getSource();
-		if (obj.equals(dpNgayBatDau) || obj.equals(dpNgayKetThuc)) {
-//			switch (TPThongKe.getSelectedIndex()) {
-//			case 0:
-//				try {
-//					addRowIntab0();
-//				} catch (RemoteException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				break;
-//			default:
-//				break;
-//			}
-			System.out.println("here");
-		}
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 }

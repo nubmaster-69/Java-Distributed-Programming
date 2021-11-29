@@ -11,7 +11,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -28,7 +27,6 @@ import javax.swing.SwingConstants;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
-import dao.EmployeeDAO;
 import entity.NhanVien;
 import facade.IEmployeeFacade;
 
@@ -68,7 +66,7 @@ public class FormThongTinNhanVien extends JFrame {
 
 	private String btnExitColor = "#e74c3c";
 	private String btnUpdateColor = "#3498db";
-	private NhanVien nvlogin;
+	private NhanVien nvlogin = null;
 
 	private IEmployeeFacade employeeFacade = null;
 
@@ -188,7 +186,6 @@ public class FormThongTinNhanVien extends JFrame {
 				try {
 					jButton1ActionPerformed(evt);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -343,7 +340,6 @@ public class FormThongTinNhanVien extends JFrame {
 	}
 
 	private void setTextFieldEditable(boolean state) {
-		txtDiaChi.setEditable(state);
 		txtHoTen.setEditable(state);
 		txtMaNV.setEditable(state);
 		txtSoDT.setEditable(state);
@@ -381,6 +377,7 @@ public class FormThongTinNhanVien extends JFrame {
 		String sdt = txtSoDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
 		String quyenDangNhap = (String) (cbxChucVu.getSelectedItem());
+		@SuppressWarnings("deprecation")
 		String matKhau = pfMatKhau.getText().toString().trim();
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date parsed = format.parse(ngay);
@@ -395,10 +392,10 @@ public class FormThongTinNhanVien extends JFrame {
 	}
 
 	private boolean regex() {
-		String maNV = txtMaNV.getText().trim();
 		String hoTen = txtHoTen.getText().trim();
 		String sdt = txtSoDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
+		@SuppressWarnings("deprecation")
 		String matKhau = pfMatKhau.getText().toString().trim();
 
 		if (!(hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && matKhau.length() > 0)) {
@@ -466,6 +463,7 @@ public class FormThongTinNhanVien extends JFrame {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	private void datHanhDongChopfMatKhau() {
 		pfMatKhau.addActionListener((e) -> {
 			if (pfMatKhau.getText().trim().length() > 0)
@@ -483,7 +481,6 @@ public class FormThongTinNhanVien extends JFrame {
 			else {
 				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
 			}
-
 		});
 	}
 

@@ -90,6 +90,7 @@ public class FormThongTinSanPham extends JFrame {
 			jButton1.setText("Cập Nhật");
 			jButton1.setName("CapNhat");
 			jButton1.setBackground(Color.decode(btnUpdateColor));
+			dpNgayNhap.setEnabled(false);
 		}
 	}
 
@@ -366,8 +367,14 @@ public class FormThongTinSanPham extends JFrame {
 
 	private boolean updateEvent() throws RemoteException, MalformedURLException, NotBoundException {
 		if(validateData("check")) {
-			linhKien.setSoLuongTon(Integer.parseInt(txtSoLuongTon.getText()));
+			linhKien.setTenLinhKien(txtTenLK.getText());
+			linhKien.setLoaiLinhKien(txtLoaiLK.getText());
+			linhKien.setThuongHieu(txtThuongHieu.getText());
 			linhKien.setDonGia(Double.parseDouble(txtDonGia.getText().trim().replace(".", "").replace(",", "")));
+			linhKien.setSoLuongTon(Integer.parseInt(txtSoLuongTon.getText()));
+			linhKien.setBaoHanh(Integer.parseInt(txtBaoHanh.getText()));
+			linhKien.setMoTa(moTa.getText());
+			
 			IComponentFacade componentFacade = (IComponentFacade) Naming.lookup("rmi://localhost:1341/componentFacade");
 			
 			boolean res = componentFacade.updateComponentByID(linhKien); 

@@ -77,7 +77,7 @@ public class KhachHang implements Serializable {
 			tien += hd.tongTienHoaDon();
 		}
 		return new Object[]{hoTenKH,diaChiKH,list.size()
-				,df.format(tien) + " VNĐ"
+				,df.format(tien)
 		};
 	}
 

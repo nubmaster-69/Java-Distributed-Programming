@@ -101,7 +101,7 @@ public class HoaDon implements Serializable {
 	
 	public Object[] convertToRowTableInGDThongKe() {
 		DecimalFormat df = new DecimalFormat("#,###");
-		return new Object[]{maKhachHang.getHoTenKH(),maNhanVien.getHoTenNV(),ngayLapHoaDon,df.format(tongTienHoaDon()) + " VNĐ"
+		return new Object[]{maKhachHang.getHoTenKH(),maNhanVien.getHoTenNV(),ngayLapHoaDon,df.format(tongTienHoaDon())
 		};
 	}
 

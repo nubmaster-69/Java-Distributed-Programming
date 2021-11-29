@@ -451,7 +451,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (!(matKhau.length() > 0)) {
-			if (JOptionPane.showConfirmDialog(this, "Nếu không nhập mật khẩu, mặc định mật khẩu: 1111", "Cảnh báo",
+			if (JOptionPane.showConfirmDialog(this, "Nếu không nhập mật khẩu, mật khẩu mặc định sẽ là 1111. Bạn có muốn tiếp tục?", "Cảnh báo",
 					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				matKhau = "1111";
 				txtMatKhau.setText("1111");
@@ -753,12 +753,8 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		});
 	}
 
-	@SuppressWarnings("deprecation")
 	private void datHanhDongChopfMatKhau() {
 		txtMatKhau.addActionListener((e) -> {
-//			if (txtMatKhau.getText().trim().length() > 0)
-//				txtMaNhanVien.requestFocus();
-//			else
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
 		});
 	}

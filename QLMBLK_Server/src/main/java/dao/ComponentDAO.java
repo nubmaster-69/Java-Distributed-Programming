@@ -218,8 +218,6 @@ public class ComponentDAO extends UnicastRemoteObject implements IComponentFacad
 		String sFromDate = fromDate.format(formatters);
 		String stoDate = toDate.format(formatters);
 		
-		System.out.println(sFromDate + "    " + stoDate);
-		
 		String query = "select lk.maLinhKien,SUM(cthd.soLuong) from ChiTietHoaDon as cthd \r\n"
 				+ "join HoaDon as hd on cthd.maHoaDon = hd.maHoaDon \r\n"
 				+ "join LinhKien as lk on cthd.maLinhKien = lk.maLinhKien \r\n"

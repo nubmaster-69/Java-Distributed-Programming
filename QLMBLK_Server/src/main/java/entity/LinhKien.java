@@ -125,14 +125,14 @@ public class LinhKien implements Serializable {
 	public Object[] convertToRowTableInGDThongKe(int sl) {
 		DecimalFormat df = new DecimalFormat("#,###");
 		return new Object[]{tenLinhKien,loaiLinhKien,thuongHieu
-				,sl,df.format(donGia*sl) + " VNĐ"
+				,sl,df.format(donGia*sl)
 		};
 	}
 	
 	public Object[] convertToRowTableInGDThongKeWorst(int sl) {
 		DecimalFormat df = new DecimalFormat("#,###");
 		return new Object[]{tenLinhKien,loaiLinhKien,thuongHieu
-				,sl,df.format(donGia) + " VNĐ"
+				,sl,df.format(donGia)
 		};
 	}
 
