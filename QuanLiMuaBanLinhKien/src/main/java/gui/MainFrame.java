@@ -43,9 +43,11 @@ public abstract class MainFrame extends javax.swing.JFrame {
 	protected JPanel menuPanel;
 	
 	private NhanVien nhanVienLogin;
+	
 
 	public MainFrame(NhanVien nv) {
 		nhanVienLogin = nv;
+		
 		initComponents();
 		mainPanel.setLayout(new BorderLayout());
 	}
@@ -330,7 +332,7 @@ public abstract class MainFrame extends javax.swing.JFrame {
 		btnNhanVien.setContentAreaFilled(true);
 
 		mainPanel.removeAll();
-		PanelDanhSachNhanVien panelNV = new PanelDanhSachNhanVien();
+		PanelDanhSachNhanVien panelNV = new PanelDanhSachNhanVien(nhanVienLogin);
 		mainPanel.add(panelNV, BorderLayout.CENTER);
 		mainPanel.repaint();
 		mainPanel.revalidate();

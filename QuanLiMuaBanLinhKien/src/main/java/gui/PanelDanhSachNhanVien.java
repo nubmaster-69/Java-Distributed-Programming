@@ -15,6 +15,7 @@ import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -89,14 +90,17 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private Map<String, NhanVien> emps = new HashMap<>();
 
 	private IEmployeeFacade employeeFacade = null;
+	
+	private NhanVien nvlogin;
 
-	public PanelDanhSachNhanVien() {
+	public PanelDanhSachNhanVien(NhanVien nv) {
 		try {
 			employeeFacade = (IEmployeeFacade) Naming.lookup("rmi://localhost:1341/employeeFacade");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		initComponents();
+		nvlogin=nv;
 	}
 
 	private void initComponents() {
@@ -175,7 +179,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		tableDanhSachNhanVien.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		tableDanhSachNhanVien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 
 		jScrollPane1.setViewportView(tableDanhSachNhanVien);
 		jScrollPane1.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
@@ -364,6 +368,12 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 				.addGap(11, 11, 11)));
 
 		loadEmployeesData();
+		datHanhDongChoTxtMaNV();
+		datHanhDongChoTxtHoTen();
+		datHanhDongChoTxtDiaChi();
+		datHanhDongChoTxtSDT();
+		datHanhDongChopfMatKhau();
+
 	}
 
 	private void btnXoaActionPerformed(ActionEvent evt) {
@@ -398,27 +408,33 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private void removeForm() {
 		txtMaNhanVien.setText("");
 		txtHoTen.setText("");
-		txtNgaySinh.setText("");
+		dpNgaySinh.clear();
 		txtSDT.setText("");
 		txtDiaChi.setText("");
 		txtMatKhau.setText("");
 	}
 
-	private boolean regex() {
+	private boolean regex() throws Exception {
 		String maNV = txtMaNhanVien.getText().trim();
 		String hoTen = txtHoTen.getText().trim();
-
+		LocalDate ngaySinh = dpNgaySinh.getDate();
 		String sdt = txtSDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
 		String matKhau = txtMatKhau.getText().toString().trim();
 
 		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0
-				&& matKhau.length() > 0)) {
-			JOptionPane.showMessageDialog(this, "Phải nhập đủ thông tin");
+				&& matKhau.length() > 0 && ngaySinh!=null)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập đủ thông tin");
 		}
 
 		if (!(maNV.length() > 0)) {
 			txtMaNhanVien.requestFocus();
+			return false;
+		}
+		if(ngaySinh==null) {
+			//them ham de show chon ngay
+			
+			
 			return false;
 		}
 
@@ -426,7 +442,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			txtHoTen.requestFocus();
 			return false;
 		}
-
 
 		if (!(sdt.length() > 0)) {
 			txtSDT.requestFocus();
@@ -442,12 +457,21 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			txtMatKhau.requestFocus();
 			return false;
 		}
-		
-		if(!maNV.matches("[0-9]{8}")) {
-			JOptionPane.showMessageDialog(this, "Mã nhân viên không hợp lệ");
+
+		if (!maNV.matches("1[89](4[89]|5[0-2])[0-9]{4}")) {
+			JOptionPane.showMessageDialog(this, "Mã nhân viên bắt đầu bằng 18 hoặc 19, 2 số tiếp theo từ 48 đến 52, 4 số tiếp theo từ 0 - 9. \n Ví dụ: 19480123");
 			txtMaNhanVien.requestFocus();
 			txtMaNhanVien.selectAll();
 			return false;
+		}
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getMaNhanVien().equals(maNV)) {
+				JOptionPane.showMessageDialog(this, "Mã nhân viên đã thuộc về nhân viên khác");
+				txtMaNhanVien.selectAll();
+				txtMaNhanVien.requestFocus();
+				return false;
+			}
 		}
 
 		if (!(hoTen.matches(
@@ -457,9 +481,18 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			txtHoTen.selectAll();
 			return false;
 		}
-
-
-
+		
+		if(ngaySinh.isAfter(LocalDate.now())) {
+			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại");
+			return false;
+		}
+		if(tinhTuoi(ngaySinh)<18) {
+			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (>=18 tuổi)");
+			//them ham de show chon ngay
+			
+			
+			return false;
+		}
 		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
 				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
 
@@ -469,8 +502,27 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			txtSDT.selectAll();
 			return false;
 		}
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
+		}
 
 		return true;
+	}
+	
+	private long tinhTuoi(LocalDate date) {
+		
+		
+		
+        LocalDate stop = LocalDate.now();
+        long years = java.time.temporal.ChronoUnit.YEARS.between( date , stop );
+		
+		
+		return years;
 	}
 
 	private void loadEmployeesData() {
@@ -499,7 +551,10 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			int t = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa?", "Xóa", JOptionPane.YES_NO_OPTION);
 			if (t == JOptionPane.YES_OPTION) {
 				String maNV = tableDanhSachNhanVien.getValueAt(row, 0).toString();
-
+				if(nvlogin.getMaNhanVien().equals(maNV)) {
+					JOptionPane.showMessageDialog(this, "Nhân viên hiện đang login, không thể xóa");
+					return;
+				}
 				boolean isRemoved = false;
 
 				try {
@@ -534,8 +589,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 				e.printStackTrace();
 			}
 
-
-
 		if (chkNu.isSelected()) {
 			nv = new NhanVien(maNV, hoTen, "Nữ", dpNgaySinh.getDate(), sdt, diaChi, matKhau, quyenDangNhap);
 		} else {
@@ -553,10 +606,10 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (mouseClick == 1 && mouseCount == 2)
 			new FormThongTinNhanVien(FormThongTinNhanVien.FORM_XEM_THONG_TIN,
-					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString())).setVisible(true);
+					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()),nvlogin).setVisible(true);
 		else if (mouseClick == 3 && mouseCount == 2) {
 			FormThongTinNhanVien form = new FormThongTinNhanVien(FormThongTinNhanVien.FORM_CAP_NHAT,
-					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()));
+					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()),nvlogin);
 
 			form.setBtnUpdate(btnChinhSua);
 			form.setVisible(true);
@@ -594,5 +647,133 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			String keyword = txtTimKiem.getText().trim();
 			rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword));
 		}
+	}
+
+	private boolean ktraMaNv() throws Exception {
+		String maNV = txtMaNhanVien.getText().trim();
+		if (!(maNV.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên");
+			txtMaNhanVien.requestFocus();
+			return false;
+		}
+		if (!maNV.matches("1[89](4[89]|5[0-2])[0-9]{4}")) {
+			JOptionPane.showMessageDialog(this, "Mã nhân viên bắt đầu bằng 18 hoặc 19, 2 số tiếp theo từ 48 đến 52, 4 số tiếp theo từ 0 - 9. \n Ví dụ: 19480123");
+			txtMaNhanVien.requestFocus();
+			txtMaNhanVien.selectAll();
+			return false;
+		}
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getMaNhanVien().equals(maNV)) {
+				JOptionPane.showMessageDialog(this, "Mã nhân viên đã thuộc về nhân viên khác");
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	private void datHanhDongChoTxtMaNV() {
+		txtMaNhanVien.addActionListener((e) -> {
+
+			try {
+				if (ktraMaNv())
+					txtHoTen.requestFocus();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		});
+	}
+
+	private boolean ktraHoten() {
+		String hoTen = txtHoTen.getText().trim();
+		if (!(hoTen.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên");
+			txtHoTen.requestFocus();
+			return false;
+		}
+		if (!(hoTen.matches(
+				"^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$"))) {
+			JOptionPane.showMessageDialog(this, "Tên không hợp lệ");
+			txtHoTen.requestFocus();
+			txtHoTen.selectAll();
+			return false;
+		}
+		return true;
+	}
+
+	private void datHanhDongChoTxtHoTen() {
+		txtHoTen.addActionListener((e) -> {
+			if (ktraHoten())
+				txtSDT.requestFocus();
+
+		});
+	}
+
+	private boolean ktraSDT() throws Exception {
+		String sdt = txtSDT.getText().trim();
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ");
+			txtSDT.requestFocus();
+			txtSDT.selectAll();
+			return false;
+		}
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void datHanhDongChoTxtSDT() {
+		txtSDT.addActionListener((e) -> {
+			try {
+				if (ktraSDT())
+					txtDiaChi.requestFocus();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		});
+	}
+
+	private void datHanhDongChopfMatKhau() {
+		txtMatKhau.addActionListener((e) -> {
+			if (txtMatKhau.getText().trim().length() > 0)
+				txtMaNhanVien.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
+			}
+
+		});
+	}
+
+	private void datHanhDongChoTxtDiaChi() {
+		txtDiaChi.addActionListener((e) -> {
+			if (txtDiaChi.getText().trim().length() > 0)
+				txtMatKhau.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
+			}
+
+		});
 	}
 }

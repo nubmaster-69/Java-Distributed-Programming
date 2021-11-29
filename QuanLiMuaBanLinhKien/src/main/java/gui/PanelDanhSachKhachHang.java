@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import entity.KhachHang;
+import entity.NhanVien;
 import facade.ICustomerFacade;
 
 public class PanelDanhSachKhachHang extends JPanel implements ActionListener, MouseListener, KeyListener {
@@ -117,6 +118,10 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 		tableDanhSachKhachHang.setFocusable(false);
 
 		tableDanhSachKhachHang.addMouseListener(this);
+		
+		datHanhDongChoTxtDiaChi();
+		datHanhDongChoTxtHoTen();
+		datHanhDongChoTxtSDT();
 
 		DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) tableDanhSachKhachHang.getTableHeader()
 				.getDefaultRenderer();
@@ -453,5 +458,82 @@ public class PanelDanhSachKhachHang extends JPanel implements ActionListener, Mo
 			String keyword = txtTimKiem.getText().trim();
 			rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword));
 		}
+	}
+	private boolean ktraHoten() {
+		String hoTen = txtTenKhachHang.getText().trim();
+		if (!(hoTen.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên");
+			txtTenKhachHang.requestFocus();
+			return false;
+		}
+		if (!(hoTen.matches(
+				"^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$"))) {
+			JOptionPane.showMessageDialog(this, "Tên không hợp lệ");
+			txtTenKhachHang.requestFocus();
+			txtTenKhachHang.selectAll();
+			return false;
+		}
+		return true;
+	}
+
+	private void datHanhDongChoTxtHoTen() {
+		txtTenKhachHang.addActionListener((e) -> {
+			if (ktraHoten())
+				txtSDT.requestFocus();
+
+		});
+	}
+	private boolean ktraSDT() throws Exception {
+		String sdt = txtSDT.getText().trim();
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ");
+			txtSDT.requestFocus();
+			txtSDT.selectAll();
+			return false;
+		}
+		//bat trung sdt vs thang khac nhung k trung vs sdt cu
+		List<KhachHang> list = customerFacade.getCustomers();
+		for (KhachHang kh : list) {
+			System.out.println(kh.getMaKhachHang()+"\n"+txtMaKhachHang.getText().trim());
+			if (kh.getSoDienThoaiKH().equals(sdt) && kh.getMaKhachHang().trim().equals(txtMaKhachHang.getText().trim())) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void datHanhDongChoTxtSDT() {
+		txtSDT.addActionListener((e) -> {
+			try {
+				if (ktraSDT())
+					txtDiaChi.requestFocus();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		});
+	}
+	private void datHanhDongChoTxtDiaChi() {
+		txtDiaChi.addActionListener((e) -> {
+			if (txtDiaChi.getText().trim().length() > 0)
+				txtTenKhachHang.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
+			}
+
+		});
 	}
 }
