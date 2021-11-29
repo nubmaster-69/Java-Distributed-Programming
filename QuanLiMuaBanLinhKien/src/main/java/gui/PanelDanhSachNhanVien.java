@@ -388,7 +388,8 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 				NhanVien nv = getNhanVien();
 				boolean isInserted = employeeFacade.addEmployee(nv);
 				if (isInserted) {
-					JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
+					JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!\n Tên đăng nhập: "
+							+ nv.getMaNhanVien() + "\n Mật khẩu: " + nv.getMatKhau());
 					removeForm();
 					loadEmployeesData();
 				}
@@ -421,8 +422,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		@SuppressWarnings("deprecation")
 		String matKhau = txtMatKhau.getText().toString().trim();
 
-		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && matKhau.length() > 0
-				&& ngaySinh != null)) {
+		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && ngaySinh != null)) {
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các trường thông tin!");
 		}
 
@@ -451,8 +451,17 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (!(matKhau.length() > 0)) {
-			txtMatKhau.requestFocus();
-			return false;
+			if (JOptionPane.showConfirmDialog(this, "Nếu không nhập mật khẩu, mặc định mật khẩu: 1111", "Cảnh báo",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				matKhau = "1111";
+				txtMatKhau.setText("1111");
+			} else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
+				txtMatKhau.selectAll();
+				txtMatKhau.requestFocus();
+				return false;
+			}
+
 		}
 
 		if (!maNV.matches("1[89](4[89]|5[0-2])[0-9]{4}")) {
@@ -576,12 +585,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (!txtMatKhau.getText().trim().isEmpty())
 			matKhau = txtMatKhau.getText().trim();
-		else
-			try {
-				matKhau = employeeFacade.getEmployeeByID(maNV).getMatKhau();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
 
 		if (chkNu.isSelected()) {
 			nv = new NhanVien(maNV, hoTen, "Nữ", dpNgaySinh.getDate(), sdt, diaChi, matKhau, quyenDangNhap);
@@ -753,10 +756,10 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	@SuppressWarnings("deprecation")
 	private void datHanhDongChopfMatKhau() {
 		txtMatKhau.addActionListener((e) -> {
-			if (txtMatKhau.getText().trim().length() > 0)
-				txtMaNhanVien.requestFocus();
-			else
-				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
+//			if (txtMatKhau.getText().trim().length() > 0)
+//				txtMaNhanVien.requestFocus();
+//			else
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
 		});
 	}
 
