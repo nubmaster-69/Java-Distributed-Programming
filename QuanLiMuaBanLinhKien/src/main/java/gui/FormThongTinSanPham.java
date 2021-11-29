@@ -361,7 +361,6 @@ public class FormThongTinSanPham extends JFrame {
 				dispose();
 			}
 		}
-
 	}
 
 	private boolean updateEvent() throws RemoteException, MalformedURLException, NotBoundException {

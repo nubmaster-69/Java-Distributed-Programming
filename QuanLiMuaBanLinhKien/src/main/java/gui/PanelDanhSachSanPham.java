@@ -48,7 +48,9 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 	private JButton btnLamMoi;
 	private JButton btnThem;
 	private JButton btnXoa;
+	
 	private DatePicker dpNgayNhap;
+	
 	private JPanel jPanel1;
 
 	private JScrollPane jScrollPane1;
@@ -110,7 +112,9 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		dateSettings.setFormatForDatesCommonEra("dd-MM-yyyy");
 		dateSettings.setFormatForDatesBeforeCommonEra("dd-MM-yyyy");
 		dateSettings.setFontValidDate(new Font("SansSerif", 0, 16));
+		dateSettings.setAllowKeyboardEditing(false);
 		dpNgayNhap = new DatePicker(dateSettings);
+		dpNgayNhap.setFocusable(false);
 		dpNgayNhap.setDateToToday();
 
 		txtTenSanPham = new JTextField();
@@ -462,8 +466,10 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 				int selectedRow = tableDanhSachSanPham.getSelectedRow();
 				String maLK = tableDanhSachSanPham.getValueAt(selectedRow, 0).toString();
 				try {
-					if (componentFacade.removeComponentByID(maLK))
+					if (componentFacade.removeComponentByID(maLK)) {
+						selectedRow = tableDanhSachSanPham.convertRowIndexToModel(selectedRow);
 						model.removeRow(selectedRow);
+					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}

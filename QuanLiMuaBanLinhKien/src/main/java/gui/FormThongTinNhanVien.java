@@ -5,6 +5,9 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,10 +70,19 @@ public class FormThongTinNhanVien extends JFrame {
 	private String btnUpdateColor = "#3498db";
 	private NhanVien nvlogin;
 
-	public FormThongTinNhanVien(int formType, NhanVien nv,NhanVien nvloginn) {
+	private IEmployeeFacade employeeFacade = null;
+
+	public FormThongTinNhanVien(int formType, NhanVien nv, NhanVien nvloginn) {
+
+		try {
+			employeeFacade = (IEmployeeFacade) Naming.lookup("rmi://localhost:1341/employeeFacade");
+		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+			e.printStackTrace();
+		}
+
 		nhanVien = nv;
 		cheDo = formType;
-		nvlogin=nvloginn;
+		nvlogin = nvloginn;
 		initComponents();
 		if (formType == FORM_XEM_THONG_TIN) {
 			jButton1.setText("Thoát");
@@ -86,7 +98,7 @@ public class FormThongTinNhanVien extends JFrame {
 			datHanhDongChoTxtSDT();
 			datHanhDongChopfMatKhau();
 			datHanhDongChoTxtDiaChi();
-			if(nvloginn.getMaNhanVien().equals(nv.getMaNhanVien()))
+			if (nvloginn.getMaNhanVien().equals(nv.getMaNhanVien()))
 				cbxChucVu.setEnabled(false);
 		}
 	}
@@ -353,11 +365,9 @@ public class FormThongTinNhanVien extends JFrame {
 	}
 
 	private boolean updateEvent() throws Exception {
-//		Viết code xử lí chức năng cập nhật ở đây nè
 		if (regex()) {
 			NhanVien nv = getNhanVien();
-			IEmployeeFacade emlf = new EmployeeDAO();
-			emlf.updateEmployeeInfo(nv);
+			employeeFacade.updateEmployeeInfo(nv);
 			return true;
 		}
 		return false;
@@ -415,8 +425,6 @@ public class FormThongTinNhanVien extends JFrame {
 			return false;
 		}
 
-
-
 		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
 				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
 
@@ -429,11 +437,12 @@ public class FormThongTinNhanVien extends JFrame {
 
 		return true;
 	}
+
 	private boolean ktraSDT() {
 		String sdt = txtSoDT.getText().trim();
-    	String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
 				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
-    	
+
 		if (!(sdt.length() > 0)) {
 			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
 			txtSoDT.requestFocus();
@@ -448,35 +457,35 @@ public class FormThongTinNhanVien extends JFrame {
 		}
 		return true;
 	}
-    private void datHanhDongChoTxtSDT(){
-        txtSoDT.addActionListener((e) -> {
-        	if(ktraSDT())
-        		pfMatKhau.requestFocus();
-        	
-        });
-    }
-    private void datHanhDongChopfMatKhau(){
-        pfMatKhau.addActionListener((e) -> {
-        	if(pfMatKhau.getText().trim().length()>0)
-        		txtDiaChi.requestFocus();
-        	else {
+
+	private void datHanhDongChoTxtSDT() {
+		txtSoDT.addActionListener((e) -> {
+			if (ktraSDT())
+				pfMatKhau.requestFocus();
+
+		});
+	}
+
+	private void datHanhDongChopfMatKhau() {
+		pfMatKhau.addActionListener((e) -> {
+			if (pfMatKhau.getText().trim().length() > 0)
+				txtDiaChi.requestFocus();
+			else {
 				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
 			}
-        	
-        });
-    }
-    private void datHanhDongChoTxtDiaChi(){
-        txtDiaChi.addActionListener((e) -> {
-        	if(txtDiaChi.getText().trim().length()>0)
-        		txtSoDT.requestFocus();
-        	else {
+		});
+	}
+
+	private void datHanhDongChoTxtDiaChi() {
+		txtDiaChi.addActionListener((e) -> {
+			if (txtDiaChi.getText().trim().length() > 0)
+				txtSoDT.requestFocus();
+			else {
 				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
 			}
-        	
-        });
-    }
-    
-    
+
+		});
+	}
 
 	public JButton getBtnUpdate() {
 		return btnUpdate;

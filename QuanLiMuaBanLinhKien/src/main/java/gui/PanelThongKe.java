@@ -115,17 +115,21 @@ public class PanelThongKe extends JPanel {
 
 		dateSettingsStart.setFontValidDate(new Font("SansSerif", 0, 16));
 		dateSettingsStart.setFormatForDatesCommonEra("dd-MM-yyyy");
+		dateSettingsStart.setAllowKeyboardEditing(false);
 
 		dateSettingsEnd.setFontValidDate(new Font("SansSerif", 0, 16));
 		dateSettingsEnd.setFormatForDatesCommonEra("dd-MM-yyyy");
+		dateSettingsEnd.setAllowKeyboardEditing(false);
 
 		dpNgayKetThuc = new DatePicker(dateSettingsStart);
 		dpNgayKetThuc.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		dpNgayKetThuc.setDateToToday();
+		dpNgayKetThuc.setFocusable(false);
 
 		dpNgayBatDau = new DatePicker(dateSettingsEnd);
 		dpNgayBatDau.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		dpNgayBatDau.setDateToToday();
+		dpNgayBatDau.setFocusable(false);
 
 		lblTieuDe.setText("Thống Kê Bán Hàng");
 		lblTieuDe.setFont(new Font("SansSerif", 1, 30));
