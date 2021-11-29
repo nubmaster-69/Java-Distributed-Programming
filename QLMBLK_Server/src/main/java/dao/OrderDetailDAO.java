@@ -18,7 +18,6 @@ public class OrderDetailDAO extends UnicastRemoteObject implements IOrderDetailF
 
 	private static final long serialVersionUID = 1L;
 
-
 	private SessionFactory sessionFactory;
 
 	public OrderDetailDAO() throws RemoteException {
@@ -79,5 +78,5 @@ public class OrderDetailDAO extends UnicastRemoteObject implements IOrderDetailF
 
 		return false;
 	}
-
+	
 }

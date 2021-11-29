@@ -13,8 +13,8 @@ import java.awt.event.MouseListener;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
-import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -89,13 +88,16 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 	private IEmployeeFacade employeeFacade = null;
 
-	public PanelDanhSachNhanVien() {
+	private NhanVien nvlogin;
+
+	public PanelDanhSachNhanVien(NhanVien nv) {
 		try {
 			employeeFacade = (IEmployeeFacade) Naming.lookup("rmi://localhost:1341/employeeFacade");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		initComponents();
+		nvlogin = nv;
 	}
 
 	private void initComponents() {
@@ -126,7 +128,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		lblTimKiem = new JLabel();
 
 		DatePickerSettings dateSettings = new DatePickerSettings();
-		dateSettings.setFontValidDate(new Font("SansSerif", 0, 14));
+		dateSettings.setFontValidDate(new Font("SansSerif", 0, 16));
 		dateSettings.setFormatForDatesCommonEra("dd-MM-yyyy");
 		dateSettings.setAllowKeyboardEditing(false);
 		dpNgaySinh = new DatePicker(dateSettings);
@@ -148,7 +150,7 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		jLabel1.setFont(new Font("SansSerif", 1, 24));
 		jLabel1.setText("Danh sách nhân viên");
 
-		model = new DefaultTableModel(new String[] { "Mã NV", "Họ & Tên", "Số ĐT", "Vai Trò" }, 0);
+		model = new DefaultTableModel(new String[] { "Mã NV", "Họ & Tên", "Số ĐT", "Chức Vụ" }, 0);
 
 		tableDanhSachNhanVien = new JTable(model);
 		rowSorter = new TableRowSorter<>(model);
@@ -173,9 +175,13 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			tableDanhSachNhanVien.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
 
+		tableDanhSachNhanVien.getColumnModel().getColumn(0).setPreferredWidth(10);
+		tableDanhSachNhanVien.getColumnModel().getColumn(1).setPreferredWidth(70);
+		tableDanhSachNhanVien.getColumnModel().getColumn(2).setPreferredWidth(15);
+		tableDanhSachNhanVien.getColumnModel().getColumn(3).setPreferredWidth(15);
+
 		tableDanhSachNhanVien.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		tableDanhSachNhanVien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		jScrollPane1.setViewportView(tableDanhSachNhanVien);
 		jScrollPane1.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
@@ -250,151 +256,125 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup().addGap(177, 177, 177).addComponent(btnXoa)
 						.addGap(318, 318, 318).addComponent(btnChinhSua)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
-								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE,
+								Short.MAX_VALUE)
 						.addComponent(btnThem).addGap(185, 185, 185))
 				.addGroup(layout.createSequentialGroup().addGap(114, 114, 114).addComponent(jLabel1)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
-								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE,
+								Short.MAX_VALUE)
 						.addComponent(jLabel2).addGap(123, 123, 123))
-				.addGroup(GroupLayout.Alignment.TRAILING,
-						layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-										.addComponent(jScrollPane1)
-										.addGroup(layout.createSequentialGroup().addGap(6, 6, 6)
-												.addComponent(lblTimKiem, GroupLayout.DEFAULT_SIZE,
-														GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-												.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-												.addComponent(
-														txtTimKiem, GroupLayout.PREFERRED_SIZE, 454,
-														GroupLayout.PREFERRED_SIZE)))
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-										.addGroup(GroupLayout.Alignment.TRAILING, layout
-												.createSequentialGroup().addGap(18, 18, Short.MAX_VALUE)
-												.addGroup(layout
-														.createParallelGroup(GroupLayout.Alignment.LEADING,
-																false)
+				.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addGroup(layout
+						.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(jScrollPane1)
+						.addGroup(layout.createSequentialGroup().addGap(6, 6, 6)
+								.addComponent(lblTimKiem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+										Short.MAX_VALUE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(txtTimKiem, GroupLayout.PREFERRED_SIZE, 454, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
+								GroupLayout.Alignment.TRAILING,
+								layout.createSequentialGroup().addGap(18, 18, Short.MAX_VALUE).addGroup(layout
+										.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+										.addGroup(layout
+												.createSequentialGroup().addGroup(layout.createParallelGroup(
+														GroupLayout.Alignment.LEADING, false).addComponent(jLabel3)
 														.addGroup(layout.createSequentialGroup().addGroup(layout
-																.createParallelGroup(
-																		GroupLayout.Alignment.LEADING,
-																		false)
-																.addComponent(jLabel3)
-																.addGroup(layout.createSequentialGroup().addGroup(layout
+																.createParallelGroup(GroupLayout.Alignment.LEADING)
+																.addComponent(jLabel5).addComponent(chkNu,
+																		GroupLayout.Alignment.TRAILING,
+																		GroupLayout.PREFERRED_SIZE, 21,
+																		GroupLayout.PREFERRED_SIZE))
+																.addGroup(layout
 																		.createParallelGroup(
 																				GroupLayout.Alignment.LEADING)
-																		.addComponent(jLabel5).addComponent(chkNu,
-																				GroupLayout.Alignment.TRAILING,
-																				GroupLayout.PREFERRED_SIZE,
-																				21,
-																				GroupLayout.PREFERRED_SIZE))
-																		.addGroup(layout.createParallelGroup(
-																				GroupLayout.Alignment.LEADING)
-																				.addGroup(layout.createSequentialGroup()
-																						.addGap(15, 15, 15)
-																						.addComponent(dpNgaySinh,
-																								GroupLayout.DEFAULT_SIZE,
-																								GroupLayout.DEFAULT_SIZE,
-																								Short.MAX_VALUE))
-																				.addGroup(layout.createSequentialGroup()
-																						.addGap(18, 18, 18)
-																						.addComponent(jLabel6))))
-																.addComponent(txtMaNhanVien,
-																		GroupLayout.PREFERRED_SIZE, 203,
-																		GroupLayout.PREFERRED_SIZE))
-																.addGap(18, 18, 18)
-																.addGroup(layout.createParallelGroup(
-																		GroupLayout.Alignment.LEADING,
-																		false).addComponent(jLabel4)
-																		.addComponent(jLabel7)
-																		.addComponent(txtHoTen,
-																				GroupLayout.DEFAULT_SIZE,
-																				200, Short.MAX_VALUE)
-																		.addComponent(txtSDT)))
-														.addComponent(jLabel8)
-														.addGroup(layout.createSequentialGroup().addGroup(layout
-																.createParallelGroup(
-																		GroupLayout.Alignment.LEADING)
-																.addGroup(layout.createSequentialGroup().addGap(2, 2, 2)
-																		.addComponent(cmbBoxQuyenDangNhap,
-																				GroupLayout.PREFERRED_SIZE,
-																				200,
-																				GroupLayout.PREFERRED_SIZE))
-																.addComponent(jLabel12)).addGap(18, 18, 18)
-																.addGroup(layout.createParallelGroup(
-																		GroupLayout.Alignment.LEADING)
-																		.addComponent(jLabel11)
-																		.addComponent(txtMatKhau)))
-														.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE,
-																421, GroupLayout.PREFERRED_SIZE))
-												.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-										.addGroup(layout.createSequentialGroup().addGap(25, 25, 25).addContainerGap(
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))));
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addGroup(
-								GroupLayout.Alignment.LEADING,
-								layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-										.addComponent(txtTimKiem, GroupLayout.PREFERRED_SIZE, 29,
-												GroupLayout.PREFERRED_SIZE)
-										.addComponent(lblTimKiem, GroupLayout.DEFAULT_SIZE,
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-										.addComponent(jLabel1).addComponent(jLabel2))
-						.addGap(18, 18, 18)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-								.addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-								.addGroup(layout.createSequentialGroup()
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-												.addComponent(jLabel4).addComponent(jLabel3))
-										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(layout
-												.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-												.addComponent(txtHoTen, GroupLayout.DEFAULT_SIZE, 30,
-														Short.MAX_VALUE)
-												.addComponent(txtMaNhanVien))
-										.addGap(18, 18, 18)
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-												.addComponent(jLabel6).addComponent(jLabel7).addComponent(
-														jLabel5, GroupLayout.PREFERRED_SIZE, 25,
-														GroupLayout.PREFERRED_SIZE))
-										.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-										.addGroup(layout
-												.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-												.addComponent(dpNgaySinh, GroupLayout.DEFAULT_SIZE,
-														GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-												.addComponent(chkNu, GroupLayout.PREFERRED_SIZE, 29,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(txtSDT, GroupLayout.DEFAULT_SIZE, 30,
-														Short.MAX_VALUE))
-										.addGap(21, 21, 21).addComponent(jLabel8)
-										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(
-												txtDiaChi, GroupLayout.PREFERRED_SIZE, 30,
-												GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-												.addGroup(layout.createSequentialGroup().addComponent(jLabel12)
-														.addPreferredGap(
-																LayoutStyle.ComponentPlacement.RELATED)
-														.addComponent(cmbBoxQuyenDangNhap,
-																GroupLayout.PREFERRED_SIZE, 30,
+																		.addGroup(layout.createSequentialGroup()
+																				.addGap(15, 15, 15)
+																				.addComponent(dpNgaySinh,
+																						GroupLayout.DEFAULT_SIZE,
+																						GroupLayout.DEFAULT_SIZE,
+																						Short.MAX_VALUE))
+																		.addGroup(layout.createSequentialGroup()
+																				.addGap(18, 18, 18)
+																				.addComponent(jLabel6))))
+														.addComponent(txtMaNhanVien, GroupLayout.PREFERRED_SIZE, 203,
 																GroupLayout.PREFERRED_SIZE))
-												.addGroup(layout.createSequentialGroup().addComponent(jLabel11)
-														.addPreferredGap(
-																LayoutStyle.ComponentPlacement.RELATED)
-														.addComponent(txtMatKhau,
-																GroupLayout.PREFERRED_SIZE, 30,
-																GroupLayout.PREFERRED_SIZE)))
-										.addGap(0, 40, Short.MAX_VALUE)))
-						.addPreferredGap(
-								LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-								.addComponent(btnChinhSua).addComponent(btnThem).addComponent(btnXoa))
-						.addGap(11, 11, 11)));
+												.addGap(18, 18, 18)
+												.addGroup(
+														layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+																.addComponent(jLabel4).addComponent(jLabel7)
+																.addComponent(txtHoTen, GroupLayout.DEFAULT_SIZE, 200,
+																		Short.MAX_VALUE)
+																.addComponent(txtSDT)))
+										.addComponent(jLabel8)
+										.addGroup(layout.createSequentialGroup().addGroup(layout
+												.createParallelGroup(GroupLayout.Alignment.LEADING)
+												.addGroup(layout.createSequentialGroup().addGap(2, 2, 2).addComponent(
+														cmbBoxQuyenDangNhap, GroupLayout.PREFERRED_SIZE, 200,
+														GroupLayout.PREFERRED_SIZE))
+												.addComponent(jLabel12)).addGap(18, 18, 18)
+												.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+														.addComponent(jLabel11).addComponent(txtMatKhau)))
+										.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE, 421,
+												GroupLayout.PREFERRED_SIZE))
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+								.addGroup(layout.createSequentialGroup().addGap(25, 25, 25)
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
+				.createSequentialGroup().addContainerGap()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addGroup(
+						GroupLayout.Alignment.LEADING,
+						layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+								.addComponent(txtTimKiem, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblTimKiem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+										Short.MAX_VALUE)))
+				.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(jLabel1)
+						.addComponent(jLabel2))
+				.addGap(18, 18, 18)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(jLabel4).addComponent(jLabel3))
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+										.addComponent(txtHoTen, GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+										.addComponent(txtMaNhanVien))
+								.addGap(18, 18, 18)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+										.addComponent(jLabel6).addComponent(jLabel7).addComponent(jLabel5,
+												GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
+								.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+										.addComponent(dpNgaySinh, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+												Short.MAX_VALUE)
+										.addComponent(chkNu, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE)
+										.addComponent(txtSDT, GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE))
+								.addGap(21, 21, 21).addComponent(jLabel8)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+										.addGroup(layout.createSequentialGroup().addComponent(jLabel12)
+												.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+												.addComponent(cmbBoxQuyenDangNhap, GroupLayout.PREFERRED_SIZE, 30,
+														GroupLayout.PREFERRED_SIZE))
+										.addGroup(layout.createSequentialGroup().addComponent(jLabel11)
+												.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+												.addComponent(txtMatKhau, GroupLayout.PREFERRED_SIZE, 30,
+														GroupLayout.PREFERRED_SIZE)))
+								.addGap(0, 40, Short.MAX_VALUE)))
+				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(btnChinhSua)
+						.addComponent(btnThem).addComponent(btnXoa))
+				.addGap(11, 11, 11)));
 
 		loadEmployeesData();
+		datHanhDongChoTxtMaNV();
+		datHanhDongChoTxtHoTen();
+		datHanhDongChoTxtDiaChi();
+		datHanhDongChoTxtSDT();
+		datHanhDongChopfMatKhau();
+
 	}
 
 	private void btnXoaActionPerformed(ActionEvent evt) {
@@ -403,20 +383,19 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	}
 
 	private void btnThemActionPerformed(ActionEvent evt) {
-		if (regex()) {
-			try {
+		try {
+			if (regex()) {
 				NhanVien nv = getNhanVien();
 				boolean isInserted = employeeFacade.addEmployee(nv);
-
 				if (isInserted) {
-					JOptionPane.showMessageDialog(this, "Thêm thành công");
+					JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!\n Tên đăng nhập: "
+							+ nv.getMaNhanVien() + "\n Mật khẩu: " + nv.getMatKhau());
 					removeForm();
 					loadEmployeesData();
 				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -427,23 +406,24 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private void removeForm() {
 		txtMaNhanVien.setText("");
 		txtHoTen.setText("");
-		txtNgaySinh.setText("");
+		dpNgaySinh.clear();
 		txtSDT.setText("");
 		txtDiaChi.setText("");
 		txtMatKhau.setText("");
 	}
 
-	private boolean regex() {
+	private boolean regex() throws Exception {
 		String maNV = txtMaNhanVien.getText().trim();
 		String hoTen = txtHoTen.getText().trim();
-		String ngay = txtNgaySinh.getText();
+		LocalDate ngaySinh = dpNgaySinh.getDate();
 		String sdt = txtSDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
-		String matKhau = txtMatKhau.getPassword().toString().trim();
 
-		if (!(maNV.length() > 0 && hoTen.length() > 0 && ngay.length() > 0 && sdt.length() > 0 && diaChi.length() > 0
-				&& matKhau.length() > 0)) {
-			JOptionPane.showMessageDialog(this, "Phải nhập đủ thông tin");
+		@SuppressWarnings("deprecation")
+		String matKhau = txtMatKhau.getText().toString().trim();
+
+		if (!(maNV.length() > 0 && hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && ngaySinh != null)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các trường thông tin!");
 		}
 
 		if (!(maNV.length() > 0)) {
@@ -451,13 +431,12 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			return false;
 		}
 
-		if (!(hoTen.length() > 0)) {
-			txtHoTen.requestFocus();
+		if (ngaySinh == null) {
 			return false;
 		}
 
-		if (!(ngay.length() > 0)) {
-			txtNgaySinh.requestFocus();
+		if (!(hoTen.length() > 0)) {
+			txtHoTen.requestFocus();
 			return false;
 		}
 
@@ -472,54 +451,80 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		}
 
 		if (!(matKhau.length() > 0)) {
-			txtMatKhau.requestFocus();
+			if (JOptionPane.showConfirmDialog(this, "Nếu không nhập mật khẩu, mặc định mật khẩu: 1111", "Cảnh báo",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				matKhau = "1111";
+				txtMatKhau.setText("1111");
+			} else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
+				txtMatKhau.selectAll();
+				txtMatKhau.requestFocus();
+				return false;
+			}
+
+		}
+
+		if (!maNV.matches("1[89](4[89]|5[0-2])[0-9]{4}")) {
+			JOptionPane.showMessageDialog(this,
+					"Mã nhân viên bắt đầu bằng 18 hoặc 19, 2 số tiếp theo từ 48 đến 52, 4 số tiếp theo từ 0 - 9. \n Ví dụ: 19480123");
+			txtMaNhanVien.requestFocus();
+			txtMaNhanVien.selectAll();
 			return false;
+		}
+
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getMaNhanVien().equals(maNV)) {
+				JOptionPane.showMessageDialog(this, "Mã nhân viên đã thuộc về nhân viên khác!");
+				txtMaNhanVien.selectAll();
+				txtMaNhanVien.requestFocus();
+				return false;
+			}
 		}
 
 		if (!(hoTen.matches(
 				"^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$"))) {
-			JOptionPane.showMessageDialog(this, "Tên không hợp lệ");
+			JOptionPane.showMessageDialog(this, "Tên không hợp lệ!");
 			txtHoTen.requestFocus();
 			txtHoTen.selectAll();
 			return false;
 		}
 
-		if (!(ngay.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))) {
-			JOptionPane.showMessageDialog(this, "Ngày sinh phải theo dạng: YYYY-MM-DD");
-			txtNgaySinh.selectAll();
-			txtNgaySinh.requestFocus();
+		if (ngaySinh.isAfter(LocalDate.now())) {
+			JOptionPane.showMessageDialog(this, "Ngày sinh phải trước ngày hiện tại!");
 			return false;
 		}
 
-		if (!(sdt.matches("^0[0-9]{9}$"))) {
-			JOptionPane.showInternalMessageDialog(this, "Số điện thoại k hợp lệ");
+		if (tinhTuoi(ngaySinh) < 18) {
+			JOptionPane.showMessageDialog(this, "Người này chưa đủ tuổi để vào làm (tuổi phải từ 18 trở lên)!");
+			return false;
+		}
+
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this,
+					"Số điện thoại phải có 10 số và bắt đầu bằng các đầu số của nhà mạng Việt Nam!\n Ví dụ: 0366497865");
 			txtSDT.requestFocus();
 			txtSDT.selectAll();
 			return false;
 		}
 
-		String[] ngayFormat = ngay.split("-");
-		LocalDate ngaysinh = null;
-		LocalDate ngayHienTai = null;
-		try {
-			ngaysinh = LocalDate.of(Integer.parseInt(ngayFormat[0]), Integer.parseInt(ngayFormat[1]),
-					Integer.parseInt(ngayFormat[2]));
-			ngayHienTai = LocalDate.now();
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Ngày sinh Không hợp lệ");
-			txtNgaySinh.selectAll();
-			txtNgaySinh.requestFocus();
-			return false;
-		}
-
-		if (!(ngaysinh.isBefore(ngayHienTai))) {
-			JOptionPane.showMessageDialog(this, "Ngày sinh phải bé hơn ngày hiện tại");
-			txtNgaySinh.selectAll();
-			txtNgaySinh.requestFocus();
-			return false;
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác!");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
 		}
 
 		return true;
+	}
+
+	private long tinhTuoi(LocalDate date) {
+		return ChronoUnit.YEARS.between(date, LocalDate.now());
 	}
 
 	private void loadEmployeesData() {
@@ -542,23 +547,28 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 	private void xoa() {
 		int row = tableDanhSachNhanVien.getSelectedRow();
 		if (row == -1) {
-			JOptionPane.showMessageDialog(null, "Chọn dòng cần xóa");
+			JOptionPane.showMessageDialog(null, "Chọn dòng cần xóa!");
 			return;
 		} else {
-			int t = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa?", "Xóa", JOptionPane.YES_NO_OPTION);
+			int t = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa nhân viên này?", "Xác nhận",
+					JOptionPane.YES_NO_OPTION);
 			if (t == JOptionPane.YES_OPTION) {
 				String maNV = tableDanhSachNhanVien.getValueAt(row, 0).toString();
-
-				boolean isRemoved = false;
+				if (nvlogin.getMaNhanVien().equals(maNV)) {
+					JOptionPane.showMessageDialog(this, "Nhân viên hiện đang sử dụng chương trình, không thể xóa!");
+					return;
+				}
 
 				try {
-					isRemoved = employeeFacade.removeEmployeeByID(maNV);
+					if (employeeFacade.removeEmployeeByID(maNV)) {
+						row = tableDanhSachNhanVien.convertRowIndexToModel(row);
+						model.removeRow(row);
+					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
 
-				if (isRemoved)
-					loadEmployeesData();
+				loadEmployeesData();
 			}
 		}
 	}
@@ -568,7 +578,6 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 		NhanVien nv = null;
 		String maNV = txtMaNhanVien.getText().trim();
 		String hoTen = txtHoTen.getText().trim();
-		String ngay = txtNgaySinh.getText();
 		String sdt = txtSDT.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
 		String quyenDangNhap = (String) (cmbBoxQuyenDangNhap.getSelectedItem());
@@ -576,21 +585,11 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (!txtMatKhau.getText().trim().isEmpty())
 			matKhau = txtMatKhau.getText().trim();
-		else
-			try {
-				matKhau = employeeFacade.getEmployeeByID(maNV).getMatKhau();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		java.util.Date parsed = format.parse(ngay);
-		java.sql.Date ngaySinh = new java.sql.Date(parsed.getTime());
 
 		if (chkNu.isSelected()) {
-			nv = new NhanVien(maNV, hoTen, "Nữ", ngaySinh.toLocalDate(), sdt, diaChi, matKhau, quyenDangNhap);
+			nv = new NhanVien(maNV, hoTen, "Nữ", dpNgaySinh.getDate(), sdt, diaChi, matKhau, quyenDangNhap);
 		} else {
-			nv = new NhanVien(maNV, hoTen, "Nam", ngaySinh.toLocalDate(), sdt, diaChi, matKhau, quyenDangNhap);
+			nv = new NhanVien(maNV, hoTen, "Nam", dpNgaySinh.getDate(), sdt, diaChi, matKhau, quyenDangNhap);
 		}
 		return nv;
 	}
@@ -604,10 +603,10 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 
 		if (mouseClick == 1 && mouseCount == 2)
 			new FormThongTinNhanVien(FormThongTinNhanVien.FORM_XEM_THONG_TIN,
-					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString())).setVisible(true);
+					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()), nvlogin).setVisible(true);
 		else if (mouseClick == 3 && mouseCount == 2) {
 			FormThongTinNhanVien form = new FormThongTinNhanVien(FormThongTinNhanVien.FORM_CAP_NHAT,
-					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()));
+					emps.get(tableDanhSachNhanVien.getValueAt(row, 0).toString()), nvlogin);
 
 			form.setBtnUpdate(btnChinhSua);
 			form.setVisible(true);
@@ -645,5 +644,132 @@ public class PanelDanhSachNhanVien extends JPanel implements MouseListener, KeyL
 			String keyword = txtTimKiem.getText().trim();
 			rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword));
 		}
+	}
+
+	private boolean ktraMaNv() throws Exception {
+		String maNV = txtMaNhanVien.getText().trim();
+
+		if (!(maNV.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên");
+			txtMaNhanVien.requestFocus();
+			return false;
+		}
+
+		if (!maNV.matches("1[89](4[89]|5[0-2])[0-9]{4}")) {
+			JOptionPane.showMessageDialog(this,
+					"Mã nhân viên bắt đầu bằng 18 hoặc 19, 2 số tiếp theo từ 48 đến 52, 4 số tiếp theo từ 0 - 9. \n Ví dụ: 19480123");
+			txtMaNhanVien.requestFocus();
+			txtMaNhanVien.selectAll();
+			return false;
+		}
+
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getMaNhanVien().equals(maNV)) {
+				JOptionPane.showMessageDialog(this, "Mã nhân viên đã thuộc về nhân viên khác!");
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void datHanhDongChoTxtMaNV() {
+		txtMaNhanVien.addActionListener((e) -> {
+			try {
+				if (ktraMaNv())
+					txtHoTen.requestFocus();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+	}
+
+	private boolean ktraHoten() {
+		String hoTen = txtHoTen.getText().trim();
+		if (!(hoTen.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên");
+			txtHoTen.requestFocus();
+			return false;
+		}
+
+		if (!(hoTen.matches(
+				"^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$"))) {
+			JOptionPane.showMessageDialog(this, "Tên không hợp lệ");
+			txtHoTen.requestFocus();
+			txtHoTen.selectAll();
+			return false;
+		}
+
+		return true;
+	}
+
+	private void datHanhDongChoTxtHoTen() {
+		txtHoTen.addActionListener((e) -> {
+			if (ktraHoten())
+				txtSDT.requestFocus();
+		});
+	}
+
+	private boolean ktraSDT() throws Exception {
+		String sdt = txtSDT.getText().trim();
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ");
+			txtSDT.requestFocus();
+			txtSDT.selectAll();
+			return false;
+		}
+
+		List<NhanVien> list = employeeFacade.getEmployees();
+		for (NhanVien nhanVien : list) {
+			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về nhân viên khác");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void datHanhDongChoTxtSDT() {
+		txtSDT.addActionListener((e) -> {
+			try {
+				if (ktraSDT())
+					txtDiaChi.requestFocus();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+	}
+
+	@SuppressWarnings("deprecation")
+	private void datHanhDongChopfMatKhau() {
+		txtMatKhau.addActionListener((e) -> {
+//			if (txtMatKhau.getText().trim().length() > 0)
+//				txtMaNhanVien.requestFocus();
+//			else
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
+		});
+	}
+
+	private void datHanhDongChoTxtDiaChi() {
+		txtDiaChi.addActionListener((e) -> {
+			if (txtDiaChi.getText().trim().length() > 0)
+				txtMatKhau.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
+			}
+		});
 	}
 }

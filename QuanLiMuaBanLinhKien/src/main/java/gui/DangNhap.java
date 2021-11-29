@@ -57,13 +57,13 @@ public class DangNhap extends JFrame implements ActionListener {
 		jLabel2 = new JLabel();
 
 		txtTenDangNhap = new JTextField();
-		txtTenDangNhap.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		txtTenDangNhap.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
 		jLabel3 = new JLabel();
 
 		txtMatKhau = new JPasswordField();
 		txtMatKhau.setEchoChar('•');
-		txtMatKhau.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		txtMatKhau.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
 		btnDangNhap = new JButton();
 		btnDangNhap.setFont(new Font("SansSerif", Font.PLAIN, 16));

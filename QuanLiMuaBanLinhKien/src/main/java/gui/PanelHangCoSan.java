@@ -46,6 +46,7 @@ import entity.LinhKien;
 import entity.NhanVien;
 import facade.IComponentFacade;
 import facade.ICustomerFacade;
+import facade.IEmployeeFacade;
 import facade.IOrderDetailFacade;
 import facade.IOrderFacade;
 
@@ -98,6 +99,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 	private Map<String, LinhKien> items = new HashMap<>();
 	private Map<String, Integer> orderItems = new HashMap<>();
+
+	
 
 	public PanelHangCoSan(NhanVien nv) {
 
@@ -241,10 +244,10 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 		jLabel7.setText("Số điện thoại");
 		jLabel7.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		
+
 		modelTaoDonHang = new DefaultTableModel(
 				new String[] { "Mã LK", "Tên Linh Kiện", "Thương Hiệu", "Số Lượng", "Tổng tiền" }, 0);
-		
+
 		tableDonHang = new JTable(modelTaoDonHang) {
 			private static final long serialVersionUID = 1L;
 
@@ -426,14 +429,17 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			return;
 
 		if (khachHang == null) {
-			long maKhachHang = 0;
+			
 			try {
-				maKhachHang = Long.parseLong(customerFacade.getLastCustomerID());
-				maKhachHang++;
-				khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(),
-						txtSDT.getText().trim(), txtDiaChi.getText().trim());
-				customerFacade.addCustomer(khachHang);
-			} catch (NumberFormatException | RemoteException e) {
+				if (!ktraSDT()) return;
+					long maKhachHang = 0;
+					maKhachHang = Long.parseLong(customerFacade.getLastCustomerID());
+					maKhachHang++;
+					khachHang = new KhachHang(String.valueOf(maKhachHang), txtHoTen.getText().trim(),
+							txtSDT.getText().trim(), txtDiaChi.getText().trim());
+					customerFacade.addCustomer(khachHang);
+				
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -490,6 +496,36 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		loadProductsData();
 	}
 
+	private boolean ktraSDT() throws Exception {
+		String sdt = txtSDT.getText().trim();
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "SDT không hợp lệ");
+			txtSDT.requestFocus();
+			txtSDT.selectAll();
+			return false;
+		}
+
+		List<KhachHang> list = customerFacade.getCustomers();
+		for (KhachHang kh : list) {
+			if (kh.getSoDienThoaiKH().equals(sdt)) {
+				JOptionPane.showMessageDialog(this, "Số điện thoại đã thuộc về 1 khách hàng khác");
+				txtSDT.selectAll();
+				txtSDT.requestFocus();
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean validateCusData() {
 		String hoTen = txtHoTen.getText().trim();
 		String sdt = txtSDT.getText().trim();
@@ -516,13 +552,24 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 			txtSDT.requestFocus();
 			return false;
 		} else {
-			if (!(sdt.matches("^[0-9]{10}$"))) {
-				showMsg("Số điện thoại khách hàng không hợp lệ");
+			if (!(sdt.matches("^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+					+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$"))) {
+
+				showMsg("Số điện thoại khách hàng không hợp lệ\nSố điện thoại có 10 số, bắt đầu bằng các đầu số của nhà mạng VN");
 				txtSDT.requestFocus();
 				txtSDT.selectAll();
 				return false;
 			}
 		}
+//		List<NhanVien> list = employeeFacade.getEmployees();
+//		for (NhanVien nhanVien : list) {
+//			if (nhanVien.getSoDienThoaiNV().equals(sdt)) {
+//				JOptionPane.showMessageDialog(this, "SDT trùng");
+//				txtSDT.selectAll();
+//				txtSDT.requestFocus();
+//				return false;
+//			}
+//		}
 
 		if (diaChi.trim().equals("")) {
 			showMsg("Địa chỉ không được trống !");
@@ -600,8 +647,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 		int soLuongMH = modelTaoDonHang.getRowCount();
 
 		for (int i = 0; i < soLuongMH; i++) {
-			tongTien += Integer.parseInt(modelTaoDonHang.getValueAt(i, 3).toString())
-					* Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
+			tongTien += Double.parseDouble(modelTaoDonHang.getValueAt(i, 4).toString().replace(",", ""));
 		}
 
 		return tongTien;
@@ -613,6 +659,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 			if (tienKT.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Tiền khách trả không hợp lệ");
+				txtTienKhachDua.selectAll();
+				txtTienKhachDua.requestFocus();
 				return false;
 			}
 
@@ -685,6 +733,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 						txtDiaChi.setText(khachHang.getDiaChiKH());
 						txtHoTen.setText(khachHang.getHoTenKH());
 					} else {
+						JOptionPane.showMessageDialog(this,
+								"Số điện thoại không tồn tại!\nVui lòng thêm khách hàng mới.");
 						txtDiaChi.setText("");
 						txtHoTen.setText("");
 					}
@@ -740,6 +790,7 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 						modelTaoDonHang.addRow(new Object[] { tableHangCoSan.getValueAt(row, 0),
 								tableHangCoSan.getValueAt(row, 1), tableHangCoSan.getValueAt(row, 2),
 								orderItems.get(compID) + "", df.format(quantity * tongTienSP) });
+
 						latch.countDown();
 					});
 
@@ -758,6 +809,8 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 				orderItems.put(compID, orderItems.get(compID) + 1);
 				tableDonHang.setValueAt(orderItems.get(compID) + "", modifyRow, 3);
 			}
+
+			updateTableDonHang();
 		}
 	}
 
@@ -802,13 +855,17 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 				if (!isValidOrderQuantity(tableDonHang.getValueAt(i, 3).toString())) {
 					showMsg(String.format("Số lượng đặt phải là số! Vui lòng kiểm tra lại!"));
+					tableDonHang.setValueAt("1", i, 3);
+					orderItems.put(maLK, 1);
 					return;
 				}
 
 				int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
 
-				if (soLuongDat < 1) {
-					showMsg(String.format("Số lượng đặt phải lơn hơn 0!"));
+				if (soLuongDat == 0) {
+					orderItems.remove(tableDonHang.getValueAt(i, 0).toString());
+					modelTaoDonHang.removeRow(i);
+					updateTableDonHang();
 					return;
 				}
 
@@ -825,13 +882,28 @@ public class PanelHangCoSan extends JPanel implements MouseListener, ActionListe
 
 				tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
 				orderItems.put(maLK, soLuongDat);
-			}
 
-			txtTongTien.setText(String.valueOf(df.format(tongTien())));
+				txtTongTien.setText(String.valueOf(df.format(tongTien())));
+				tableDonHang.clearSelection();
+			}
 		});
 	}
 
 	private boolean isValidOrderQuantity(String quantity) {
 		return quantity.matches("\\d+");
+	}
+
+	private void updateTableDonHang() {
+		int len = modelTaoDonHang.getRowCount();
+
+		for (int i = 0; i < len; i++) {
+			String maLK = tableDonHang.getValueAt(i, 0).toString();
+			int soLuongDat = Integer.valueOf(tableDonHang.getValueAt(i, 3).toString());
+			double tongTienSP = Double
+					.parseDouble(tableHangCoSan.getValueAt(findRowByValue(maLK), 3).toString().replace(",", ""));
+			tableDonHang.setValueAt(df.format(tongTienSP * soLuongDat), i, 4);
+		}
+
+		txtTongTien.setText(String.valueOf(df.format(tongTien())));
 	}
 }

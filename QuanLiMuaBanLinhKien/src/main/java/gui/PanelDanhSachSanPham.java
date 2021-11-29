@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
-import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -50,7 +48,9 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 	private JButton btnLamMoi;
 	private JButton btnThem;
 	private JButton btnXoa;
+	
 	private DatePicker dpNgayNhap;
+	
 	private JPanel jPanel1;
 
 	private JScrollPane jScrollPane1;
@@ -107,11 +107,15 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 
 		lblLoai = new JLabel();
 		lblNgayNhap = new JLabel();
-		
+
 		DatePickerSettings dateSettings = new DatePickerSettings();
-        dateSettings.setFormatForDatesCommonEra("dd/MM/yyyy");
-        dateSettings.setFormatForDatesBeforeCommonEra("dd/MM/yyyy");
-        dpNgayNhap = new DatePicker(dateSettings);
+		dateSettings.setFormatForDatesCommonEra("dd-MM-yyyy");
+		dateSettings.setFormatForDatesBeforeCommonEra("dd-MM-yyyy");
+		dateSettings.setFontValidDate(new Font("SansSerif", 0, 16));
+		dateSettings.setAllowKeyboardEditing(false);
+		dpNgayNhap = new DatePicker(dateSettings);
+		dpNgayNhap.setFocusable(false);
+		dpNgayNhap.setDateToToday();
 
 		txtTenSanPham = new JTextField();
 		txtTenSanPham.setFont(new Font("SansSerif", 0, 14));
@@ -151,7 +155,6 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		model = new DefaultTableModel(new String[] { "Mã LK", "Tên LK", "Thương hiệu", "Đơn giá", "Số lượng" }, 0);
 
 		tableDanhSachSanPham = new JTable(model);
-		tableDanhSachSanPham.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		rowSorter = new TableRowSorter<DefaultTableModel>(model);
 		tableDanhSachSanPham.setRowSorter(rowSorter);
 		tableDanhSachSanPham.setDefaultEditor(Object.class, null);
@@ -253,7 +256,7 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		lblThuongHieu.setText("Thương hiệu");
 
 		lblSoLuongTon.setFont(new Font("SansSerif", 0, 14));
-		lblSoLuongTon.setText("Số lượng tồn");
+		lblSoLuongTon.setText("Số lượng      ");
 
 		lblBaoHanh.setFont(new Font("SansSerif", 0, 14));
 		lblBaoHanh.setText("Bảo hành");
@@ -411,7 +414,6 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		loadProductsData();
 	}
 
-//	kiểm tra lại hàm này
 	private void btnThemActionPerformed() {
 		if (validateData("check")) {
 			String ten = txtTenSanPham.getText().trim();
@@ -420,14 +422,14 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 			String loai = txtLoaiLinhKien.getText();
 			String thuonghieu = txtThuongHieu.getText().trim();
 			int soluong = Integer.parseInt(txtSoLuongTon.getText().trim());
-			Date ngaynhap = Date.valueOf(dpNgayNhap.getDate());
+			LocalDate ngaynhap = dpNgayNhap.getDate();
 			int bh = Integer.parseInt(txtBaoHanh.getText());
 
 			try {
-				String maLinhKien =  componentFacade.getLastLK();
-				LinhKien lk = new LinhKien(maLinhKien, ten, loai, mota, gia, thuonghieu, soluong, LocalDate.now() , bh);
+				String maLinhKien = componentFacade.getLastLK();
+				LinhKien lk = new LinhKien(maLinhKien, ten, loai, mota, gia, thuonghieu, soluong, ngaynhap, bh);
 				if (componentFacade.addComponent(lk)) {
-					if (JOptionPane.showConfirmDialog(null, "Thêm sản phẩm thành công! Tiếp tục thêm?",
+					if (JOptionPane.showConfirmDialog(null, "Thêm sản phẩm thành công! Bạn có muốn tiếp tục thêm?",
 							"Thêm thông tin sản phẩm", JOptionPane.YES_NO_OPTION) == 1)
 						clearTextFields();
 
@@ -464,8 +466,10 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 				int selectedRow = tableDanhSachSanPham.getSelectedRow();
 				String maLK = tableDanhSachSanPham.getValueAt(selectedRow, 0).toString();
 				try {
-					if (componentFacade.removeComponentByID(maLK))
+					if (componentFacade.removeComponentByID(maLK)) {
+						selectedRow = tableDanhSachSanPham.convertRowIndexToModel(selectedRow);
 						model.removeRow(selectedRow);
+					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -492,83 +496,90 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 		JOptionPane.showMessageDialog(null, msg);
 	}
 
-//	Sua lai ham nay nhe
 	private boolean validateData(String checkMa) {
-		if(checkMa.equals("check")) {
-			
+		if (checkMa.equals("check")) {
+
 			String ten = txtTenSanPham.getText().trim();
 			String loai = txtLoaiLinhKien.getText();
 			String thuonghieu = txtThuongHieu.getText().trim();
-			
-			if(ten.equals("")) {
-				showMsg("Tên sản phẩm không được trống !");
+
+			if (ten.equals("")) {
+				showMsg("Tên sản phẩm không được trống!");
 				txtTenSanPham.selectAll();
 				txtTenSanPham.requestFocus();
 				return false;
 			}
-			
-			if(loai.equals("")) {
-				showMsg("Loại linh kiện không được trống !");
-				txtLoaiLinhKien.selectAll();
-				txtLoaiLinhKien.requestFocus();
+
+			try {
+				double gia = Double.parseDouble(txtDonGia.getText().trim().replace(".", ""));
+				if (gia < 0) {
+					showMsg("Giá không được bé hơn 0!");
+					txtDonGia.selectAll();
+					txtDonGia.requestFocus();
+					return false;
+				}
+			} catch (Exception e) {
+				showMsg("Giá phải là số!");
+				txtDonGia.selectAll();
+				txtDonGia.requestFocus();
 				return false;
 			}
-			
-			if(thuonghieu.equals("")) {
-				showMsg("Thương hiệu không được trống !");
+
+			if (thuonghieu.equals("")) {
+				showMsg("Thương hiệu không được trống!");
 				txtThuongHieu.selectAll();
 				txtThuongHieu.requestFocus();
 				return false;
 			}
-			
-			try {
-				double gia = Double.parseDouble(txtDonGia.getText().trim().replace(".", ""));
-				if(gia < 0) {
-					showMsg("Giá không được bé hơn 0 !");
-					txtDonGia.selectAll();
-					txtDonGia.requestFocus();
-					return false;
-				}
-			} catch (Exception e) {
-				showMsg("Giá phải là số !");
-				txtDonGia.selectAll();
-				txtDonGia.requestFocus();
+
+			if (loai.equals("")) {
+				showMsg("Loại linh kiện không được trống!");
+				txtLoaiLinhKien.selectAll();
+				txtLoaiLinhKien.requestFocus();
 				return false;
 			}
-			
+
 			try {
 				int soluong = Integer.parseInt(txtSoLuongTon.getText().trim());
-				if(soluong < 0) {
-					showMsg("Số lượng không được bé hơn 0 !");
-					txtDonGia.selectAll();
-					txtDonGia.requestFocus();
+				if (soluong < 0) {
+					showMsg("Số lượng không được bé hơn 0!");
+					txtSoLuongTon.selectAll();
+					txtSoLuongTon.requestFocus();
 					return false;
 				}
 			} catch (Exception e) {
-				showMsg("Số lượng phải là số !");
-				txtDonGia.selectAll();
-				txtDonGia.requestFocus();
+				showMsg("Số lượng phải là số!");
+				txtSoLuongTon.selectAll();
+				txtSoLuongTon.requestFocus();
+				return false;
+			}
+
+			LocalDate ngayNhap = dpNgayNhap.getDate();
+
+			if (ngayNhap == null || dpNgayNhap == null) {
+				showMsg("Vui lòng chọn ngày nhập!");
+				dpNgayNhap.requestFocus();
 				return false;
 			}
 			
-			try {
-				Date ngaynhap = Date.valueOf(dpNgayNhap.getDate());
-			} catch (Exception e) {
-				showMsg("Chọn ngày nhập linh kiện !");
+			if(ngayNhap.isAfter(LocalDate.now())) {
+				showMsg("Ngày nhập hàng phải trước hoặc là ngày hôm nay!");
+				dpNgayNhap.requestFocus();
+				return false;
 			}
-			
+
 			try {
 				int bh = Integer.parseInt(txtBaoHanh.getText());
-				if(bh < 0) {
-					showMsg("Thời gian bảo hành không được bé hơn 0 !");
-					txtDonGia.selectAll();
-					txtDonGia.requestFocus();
+				if (bh < 0) {
+					showMsg("Thời gian bảo hành không được bé hơn 0!");
+					txtBaoHanh.selectAll();
+					txtBaoHanh.requestFocus();
 					return false;
 				}
 			} catch (Exception e) {
-				showMsg("Thời gian bảo hành phải là số !");
-				txtDonGia.selectAll();
-				txtDonGia.requestFocus();
+				showMsg("Thời gian bảo hành phải là số!");
+				txtBaoHanh.selectAll();
+				txtBaoHanh.requestFocus();
 				return false;
 			}
 		}
@@ -598,7 +609,7 @@ public class PanelDanhSachSanPham extends JPanel implements MouseListener, Actio
 			new FormThongTinSanPham(FormThongTinSanPham.FORM_XEM_THONG_TIN,
 					comps.get(tableDanhSachSanPham.getValueAt(row, 0).toString())).setVisible(true);
 		else if (mouseClick == 3 && mouseCount == 2) {
-			if(tableDanhSachSanPham.getSelectedRow() != -1) {
+			if (tableDanhSachSanPham.getSelectedRow() != -1) {
 				FormThongTinSanPham form = new FormThongTinSanPham(FormThongTinSanPham.FORM_CAP_NHAT,
 						comps.get(tableDanhSachSanPham.getValueAt(row, 0).toString()));
 

@@ -31,16 +31,23 @@ public abstract class MainFrame extends javax.swing.JFrame {
 	protected JButton btnSanPham;
 	protected JButton btnThoat;
 	protected JButton btnThongKe;
+	
 	protected JLabel jLabel1;
 	protected JLabel jLabel2;
+	
 	private JScrollPane jScrollPane1;
+	
 	private JTextArea jTextArea1;
+	
 	private JPanel mainPanel;
 	protected JPanel menuPanel;
+	
 	private NhanVien nhanVienLogin;
+	
 
 	public MainFrame(NhanVien nv) {
 		nhanVienLogin = nv;
+		
 		initComponents();
 		mainPanel.setLayout(new BorderLayout());
 	}
@@ -81,6 +88,7 @@ public abstract class MainFrame extends javax.swing.JFrame {
 		btnDonHang.setBorderPainted(false);
 		btnDonHang.setContentAreaFilled(false);
 		btnDonHang.setFocusPainted(false);
+		
 		btnDonHang.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				btnDonHangActionPerformed(evt);
@@ -292,11 +300,11 @@ public abstract class MainFrame extends javax.swing.JFrame {
 	}
 
 	private void btnThoatActionPerformed(ActionEvent evt) {
-		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thoát ?");
+		int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thoát?", "Đăng Xuất",
+				JOptionPane.YES_NO_OPTION);
 		if (confirm == 0) {
 			this.dispose();
 			new DangNhap().setVisible(true);
-			;
 		}
 	}
 
@@ -324,7 +332,7 @@ public abstract class MainFrame extends javax.swing.JFrame {
 		btnNhanVien.setContentAreaFilled(true);
 
 		mainPanel.removeAll();
-		PanelDanhSachNhanVien panelNV = new PanelDanhSachNhanVien();
+		PanelDanhSachNhanVien panelNV = new PanelDanhSachNhanVien(nhanVienLogin);
 		mainPanel.add(panelNV, BorderLayout.CENTER);
 		mainPanel.repaint();
 		mainPanel.revalidate();

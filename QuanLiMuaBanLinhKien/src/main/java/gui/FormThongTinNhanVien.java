@@ -5,6 +5,13 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -21,7 +28,9 @@ import javax.swing.SwingConstants;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
+import dao.EmployeeDAO;
 import entity.NhanVien;
+import facade.IEmployeeFacade;
 
 public class FormThongTinNhanVien extends JFrame {
 
@@ -59,11 +68,21 @@ public class FormThongTinNhanVien extends JFrame {
 
 	private String btnExitColor = "#e74c3c";
 	private String btnUpdateColor = "#3498db";
+	private NhanVien nvlogin;
 
-	public FormThongTinNhanVien(int formType, NhanVien nv) {
+	private IEmployeeFacade employeeFacade = null;
+
+	public FormThongTinNhanVien(int formType, NhanVien nv, NhanVien nvloginn) {
+
+		try {
+			employeeFacade = (IEmployeeFacade) Naming.lookup("rmi://localhost:1341/employeeFacade");
+		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+			e.printStackTrace();
+		}
+
 		nhanVien = nv;
 		cheDo = formType;
-
+		nvlogin = nvloginn;
 		initComponents();
 		if (formType == FORM_XEM_THONG_TIN) {
 			jButton1.setText("Thoát");
@@ -73,6 +92,14 @@ public class FormThongTinNhanVien extends JFrame {
 			jButton1.setText("Cập Nhật");
 			jButton1.setName("CapNhat");
 			jButton1.setBackground(Color.decode(btnUpdateColor));
+			dpNgaySinh.setEnabled(false);
+			txtMaNV.setEnabled(false);
+			txtHoTen.setEnabled(false);
+			datHanhDongChoTxtSDT();
+			datHanhDongChopfMatKhau();
+			datHanhDongChoTxtDiaChi();
+			if (nvloginn.getMaNhanVien().equals(nv.getMaNhanVien()))
+				cbxChucVu.setEnabled(false);
 		}
 	}
 
@@ -158,7 +185,12 @@ public class FormThongTinNhanVien extends JFrame {
 		jButton1.setText("Thoát");
 		jButton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				jButton1ActionPerformed(evt);
+				try {
+					jButton1ActionPerformed(evt);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 
@@ -179,66 +211,61 @@ public class FormThongTinNhanVien extends JFrame {
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
 				.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout
-										.createParallelGroup(GroupLayout.Alignment.LEADING)
-										.addGroup(layout.createSequentialGroup().addGap(100, 100, 100)
-												.addComponent(lblTieuDe, GroupLayout.PREFERRED_SIZE, 283,
-														GroupLayout.PREFERRED_SIZE))
-										.addGroup(layout.createSequentialGroup().addGap(160, 160, 160).addComponent(
-												jButton1, GroupLayout.PREFERRED_SIZE, 152,
-												GroupLayout.PREFERRED_SIZE)))
-								.addGap(0, 0, Short.MAX_VALUE))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
+						.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addGroup(layout.createSequentialGroup().addGap(100, 100, 100).addComponent(lblTieuDe,
+										GroupLayout.PREFERRED_SIZE, 283, GroupLayout.PREFERRED_SIZE))
+								.addGroup(layout.createSequentialGroup().addGap(160, 160, 160).addComponent(jButton1,
+										GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)))
+						.addGap(0, 0, Short.MAX_VALUE))
 						.addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
 								.createParallelGroup(GroupLayout.Alignment.LEADING)
-								.addGroup(layout.createSequentialGroup()
-										.addGroup(
-												layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-														.addComponent(txtMaNV, GroupLayout.PREFERRED_SIZE,
-																216, GroupLayout.PREFERRED_SIZE)
-														.addComponent(lblTenNV, GroupLayout.PREFERRED_SIZE,
-																100, GroupLayout.PREFERRED_SIZE))
+								.addGroup(layout.createSequentialGroup().addGroup(layout
+										.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(txtMaNV, GroupLayout.PREFERRED_SIZE, 216,
+												GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblTenNV, GroupLayout.PREFERRED_SIZE, 100,
+												GroupLayout.PREFERRED_SIZE))
 										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
 												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addGroup(layout
-												.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 												.addGroup(layout.createSequentialGroup()
-														.addComponent(lblNgaySinh,
-																GroupLayout.PREFERRED_SIZE, 100,
+														.addComponent(lblNgaySinh, GroupLayout.PREFERRED_SIZE, 100,
 																GroupLayout.PREFERRED_SIZE)
 														.addGap(116, 116, 116))
 												.addComponent(dpNgaySinh, GroupLayout.DEFAULT_SIZE,
 														GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
 								.addComponent(txtDiaChi)
-								.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-												.addComponent(txtSoDT, GroupLayout.PREFERRED_SIZE, 216,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(lblSoDT, GroupLayout.PREFERRED_SIZE, 100,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(lblGioiTinh, GroupLayout.PREFERRED_SIZE, 100,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(cbxGioiTinh, GroupLayout.PREFERRED_SIZE, 216,
-														GroupLayout.PREFERRED_SIZE))
-										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-												.addComponent(lblMatKhau, GroupLayout.PREFERRED_SIZE, 100,
-														GroupLayout.PREFERRED_SIZE)
-												.addGroup(layout
-														.createParallelGroup(GroupLayout.Alignment.LEADING,
-																false)
-														.addComponent(pfMatKhau,
-																GroupLayout.Alignment.TRAILING)
-														.addGroup(layout.createSequentialGroup()
-																.addComponent(lblChucVu,
-																		GroupLayout.PREFERRED_SIZE, 100,
-																		GroupLayout.PREFERRED_SIZE)
-																.addGap(116, 116, 116))
-														.addComponent(cbxChucVu, 0,
-																GroupLayout.DEFAULT_SIZE,
-																Short.MAX_VALUE))))
+								.addGroup(GroupLayout.Alignment.TRAILING,
+										layout.createSequentialGroup()
+												.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+														.addComponent(txtSoDT, GroupLayout.PREFERRED_SIZE, 216,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(lblSoDT, GroupLayout.PREFERRED_SIZE, 100,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(lblGioiTinh, GroupLayout.PREFERRED_SIZE, 100,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(cbxGioiTinh, GroupLayout.PREFERRED_SIZE, 216,
+																GroupLayout.PREFERRED_SIZE))
+												.addPreferredGap(
+														LayoutStyle.ComponentPlacement.RELATED,
+														GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+														.addComponent(
+																lblMatKhau, GroupLayout.PREFERRED_SIZE, 100,
+																GroupLayout.PREFERRED_SIZE)
+														.addGroup(layout
+																.createParallelGroup(GroupLayout.Alignment.LEADING,
+																		false)
+																.addComponent(pfMatKhau, GroupLayout.Alignment.TRAILING)
+																.addGroup(layout.createSequentialGroup()
+																		.addComponent(lblChucVu,
+																				GroupLayout.PREFERRED_SIZE, 100,
+																				GroupLayout.PREFERRED_SIZE)
+																		.addGap(116, 116, 116))
+																.addComponent(cbxChucVu, 0, GroupLayout.DEFAULT_SIZE,
+																		Short.MAX_VALUE))))
 								.addGroup(layout.createSequentialGroup()
 										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 												.addComponent(lblDiaChi, GroupLayout.PREFERRED_SIZE, 100,
@@ -251,36 +278,25 @@ public class FormThongTinNhanVien extends JFrame {
 				.addContainerGap()));
 		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout
 				.createSequentialGroup().addContainerGap()
-				.addComponent(lblTieuDe, GroupLayout.PREFERRED_SIZE, 45,
-						GroupLayout.PREFERRED_SIZE)
-				.addGap(30, 30, 30)
-				.addComponent(lblHoTen, GroupLayout.PREFERRED_SIZE, 20,
-						GroupLayout.PREFERRED_SIZE)
+				.addComponent(lblTieuDe, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE).addGap(30, 30, 30)
+				.addComponent(lblHoTen, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-				.addComponent(
-						txtHoTen, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+				.addComponent(txtHoTen, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE).addGap(20, 20, 20)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(lblNgaySinh, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(dpNgaySinh, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(lblTenNV, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(txtMaNV, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)))
 				.addGap(20, 20, 20)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(lblNgaySinh, GroupLayout.PREFERRED_SIZE, 20,
-										GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblSoDT, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(dpNgaySinh, GroupLayout.PREFERRED_SIZE, 40,
-										GroupLayout.PREFERRED_SIZE))
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(lblTenNV, GroupLayout.PREFERRED_SIZE, 20,
-										GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(txtMaNV, GroupLayout.PREFERRED_SIZE, 40,
-										GroupLayout.PREFERRED_SIZE)))
-				.addGap(20, 20, 20)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(lblSoDT, GroupLayout.PREFERRED_SIZE, 20,
-										GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(txtSoDT, GroupLayout.PREFERRED_SIZE, 40,
-										GroupLayout.PREFERRED_SIZE))
+								.addComponent(txtSoDT, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(lblChucVu, GroupLayout.PREFERRED_SIZE, 20,
@@ -294,18 +310,12 @@ public class FormThongTinNhanVien extends JFrame {
 										.addComponent(cbxGioiTinh, GroupLayout.PREFERRED_SIZE, 40,
 												GroupLayout.PREFERRED_SIZE))
 								.addGap(20, 20, 20)
-								.addComponent(lblMatKhau, GroupLayout.PREFERRED_SIZE, 20,
-										GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblMatKhau, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(pfMatKhau, GroupLayout.PREFERRED_SIZE, 40,
-										GroupLayout.PREFERRED_SIZE)))
-				.addGap(20, 20, 20).addComponent(lblDiaChi)
-				.addPreferredGap(
-						LayoutStyle.ComponentPlacement.RELATED)
-				.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE, 40,
-						GroupLayout.PREFERRED_SIZE)
-				.addGap(20, 20, 20).addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 34,
-						GroupLayout.PREFERRED_SIZE)
+								.addComponent(pfMatKhau, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)))
+				.addGap(20, 20, 20).addComponent(lblDiaChi).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+				.addComponent(txtDiaChi, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE).addGap(20, 20, 20)
+				.addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
 				.addGap(19, 19, 19)));
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -329,6 +339,7 @@ public class FormThongTinNhanVien extends JFrame {
 		dpNgaySinh.setDate(nhanVien.getNgaySinhNV());
 		cbxChucVu.setSelectedItem(nhanVien.getquyenTruyCap());
 		cbxGioiTinh.setSelectedItem(nhanVien.getGioiTinhNV());
+		pfMatKhau.setText(nhanVien.getMatKhau());
 	}
 
 	private void setTextFieldEditable(boolean state) {
@@ -340,7 +351,7 @@ public class FormThongTinNhanVien extends JFrame {
 		dpNgaySinh.setEnabled(state);
 	}
 
-	private void jButton1ActionPerformed(ActionEvent evt) {
+	private void jButton1ActionPerformed(ActionEvent evt) throws Exception {
 		if (jButton1.getName().equals("Thoat"))
 			dispose();
 		else {
@@ -353,9 +364,127 @@ public class FormThongTinNhanVien extends JFrame {
 		}
 	}
 
-	private boolean updateEvent() {
-//		Viết code xử lí chức năng cập nhật ở đây nè
+	private boolean updateEvent() throws Exception {
+		if (regex()) {
+			NhanVien nv = getNhanVien();
+			employeeFacade.updateEmployeeInfo(nv);
+			return true;
+		}
+		return false;
+	}
+
+	private NhanVien getNhanVien() throws ParseException {
+		NhanVien nv = null;
+		String maNV = txtMaNV.getText().trim();
+		String hoTen = txtHoTen.getText().trim();
+		String ngay = dpNgaySinh.getText();
+		String sdt = txtSoDT.getText().trim();
+		String diaChi = txtDiaChi.getText().trim();
+		String quyenDangNhap = (String) (cbxChucVu.getSelectedItem());
+		String matKhau = pfMatKhau.getText().toString().trim();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date parsed = format.parse(ngay);
+		java.sql.Date ngaySinh = new java.sql.Date(parsed.getTime());
+
+		if (cbxGioiTinh.getSelectedIndex() == 1) {
+			nv = new NhanVien(maNV, hoTen, "Nữ", ngaySinh.toLocalDate(), sdt, diaChi, matKhau, quyenDangNhap);
+		} else {
+			nv = new NhanVien(maNV, hoTen, "Nam", ngaySinh.toLocalDate(), sdt, diaChi, matKhau, quyenDangNhap);
+		}
+		return nv;
+	}
+
+	private boolean regex() {
+		String maNV = txtMaNV.getText().trim();
+		String hoTen = txtHoTen.getText().trim();
+		String sdt = txtSoDT.getText().trim();
+		String diaChi = txtDiaChi.getText().trim();
+		String matKhau = pfMatKhau.getText().toString().trim();
+
+		if (!(hoTen.length() > 0 && sdt.length() > 0 && diaChi.length() > 0 && matKhau.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Phải nhập đủ thông tin");
+		}
+
+		if (!(hoTen.length() > 0)) {
+			txtHoTen.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.length() > 0)) {
+			txtSoDT.requestFocus();
+			return false;
+		}
+
+		if (!(diaChi.length() > 0)) {
+			txtDiaChi.requestFocus();
+			return false;
+		}
+
+		if (!(matKhau.length() > 0)) {
+			pfMatKhau.requestFocus();
+			return false;
+		}
+
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "SDT không hợp lệ");
+			txtSoDT.requestFocus();
+			txtSoDT.selectAll();
+			return false;
+		}
+
 		return true;
+	}
+
+	private boolean ktraSDT() {
+		String sdt = txtSoDT.getText().trim();
+		String pattern = "^(032|033|034|035|036|037|038|039|086|096|097|098|" + "070|079|077|076|078|089|090|093|"
+				+ "083|084|085|081|082|088|091|094|" + "056|058|092|" + "059|099)[0-9]{7}$";
+
+		if (!(sdt.length() > 0)) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại");
+			txtSoDT.requestFocus();
+			return false;
+		}
+
+		if (!(sdt.matches(pattern))) {
+			JOptionPane.showMessageDialog(this, "SDT không hợp lệ");
+			txtSoDT.requestFocus();
+			txtSoDT.selectAll();
+			return false;
+		}
+		return true;
+	}
+
+	private void datHanhDongChoTxtSDT() {
+		txtSoDT.addActionListener((e) -> {
+			if (ktraSDT())
+				pfMatKhau.requestFocus();
+
+		});
+	}
+
+	private void datHanhDongChopfMatKhau() {
+		pfMatKhau.addActionListener((e) -> {
+			if (pfMatKhau.getText().trim().length() > 0)
+				txtDiaChi.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu");
+			}
+		});
+	}
+
+	private void datHanhDongChoTxtDiaChi() {
+		txtDiaChi.addActionListener((e) -> {
+			if (txtDiaChi.getText().trim().length() > 0)
+				txtSoDT.requestFocus();
+			else {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ");
+			}
+
+		});
 	}
 
 	public JButton getBtnUpdate() {
