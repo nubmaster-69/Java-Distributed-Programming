@@ -5,7 +5,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import org.hibernate.Transaction;
 import connectDatabase.ConnectDatabase;
 import entity.HoaDon;
 import entity.KhachHang;
-import entity.LinhKien;
 import facade.ICustomerFacade;
 
 public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade {
@@ -193,7 +191,11 @@ public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade 
 		Map<KhachHang,List<HoaDon>> ListKhachHangTiemNang = new HashedMap<KhachHang,List<HoaDon>>();
 		
 		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
+		int year = toDate.getYear() - fromDate.getYear();
+		int sl = 2;
+		if(year > 1) {
+			sl+= year+1;
+		}
 		String sFromDate = fromDate.format(formatters);
 		String stoDate = toDate.format(formatters);
 		
@@ -201,7 +203,7 @@ public class CustomerDAO extends UnicastRemoteObject implements ICustomerFacade 
 				+ "join HoaDon as hd on kh.maKhachHang = hd.maKhachHang \r\n"
 				+ "where hd.ngayLapHoaDon between '"+sFromDate+"' and '"+stoDate+"'\r\n"
 				+ "group by kh.maKhachHang\r\n"
-				+ "having COUNT( kh.maKhachHang ) >=2\r\n"
+				+ "having COUNT( kh.maKhachHang ) >="+sl+"\r\n"
 				+ "order by COUNT( kh.maKhachHang ) desc";	
 
 		Session session = sessionFactory.getCurrentSession();
