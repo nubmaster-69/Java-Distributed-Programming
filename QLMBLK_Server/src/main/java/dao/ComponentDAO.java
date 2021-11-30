@@ -2,7 +2,6 @@ package dao;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -214,7 +213,11 @@ public class ComponentDAO extends UnicastRemoteObject implements IComponentFacad
 		Map<LinhKien,Integer> ListLinhKienDaBan = new HashedMap<LinhKien,Integer>();
 		
 		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("MM-dd-yyyy");
-
+		int year = toDate.getYear() - fromDate.getYear();
+		int sl = 4;
+		if(year > 1) {
+			sl+= year+1;
+		}
 		String sFromDate = fromDate.format(formatters);
 		String stoDate = toDate.format(formatters);
 		
@@ -223,7 +226,7 @@ public class ComponentDAO extends UnicastRemoteObject implements IComponentFacad
 				+ "join LinhKien as lk on cthd.maLinhKien = lk.maLinhKien \r\n"
 				+ "where hd.ngayLapHoaDon between '"+sFromDate+"' and '"+stoDate+"'\r\n"
 				+ "group by lk.maLinhKien\r\n"
-				+ "having SUM(cthd.soLuong) >= 4";
+				+ "having SUM(cthd.soLuong) >= "+sl;
 
 		Session session = sessionFactory.getCurrentSession();
 		Transaction trans = session.getTransaction();
@@ -284,5 +287,4 @@ public class ComponentDAO extends UnicastRemoteObject implements IComponentFacad
 	
 		return null;
 	}
-//	
 }
