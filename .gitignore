@@ -9,4 +9,3 @@ QLMBLK_Server/.settings/
 QLMBLK_Server/target/
 QLMBLK_Server/.project
 QLMBLK_Server/.classpath
-QLMBLK_Server/src/main/resources/hibernate.cfg.xml
